@@ -37,8 +37,8 @@ public class CsvQuestionDao implements QuestionDao {
                 .withSkipLines(1)
                 .withSeparator(';')
                 .build();
-        List<QuestionDto> list = csvToBean.parse();
-        return list.stream()
+        List<QuestionDto> dtoList = csvToBean.parse();
+        return dtoList.stream()
                 .map(QuestionDto::toDomainObject)
                 .toList();
     }

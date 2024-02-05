@@ -16,17 +16,20 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public void executeTest() {
-        ioService.printFormattedLine("%nPlease answer the questions below%n");
+        ioService.printLine("\nPlease answer the questions below");
         List<Question> questions = questionDao.findAll();
         if (CollectionUtils.isEmpty(questions)) {
             return;
         }
-        questions.forEach(question -> {
+        for (Question question : questions) {
+            ioService.printLine("");
             ioService.printFormattedLine("Q: %s%nA:", question.text());
+            if (CollectionUtils.isEmpty(question.answers())) {
+                continue;
+            }
             for (int i = 0; i < question.answers().size(); i++) {
                 ioService.printFormattedLine("\t%d. %s", i + 1, question.answers().get(i).text());
             }
-            ioService.printLine("");
-        });
+        }
     }
 }

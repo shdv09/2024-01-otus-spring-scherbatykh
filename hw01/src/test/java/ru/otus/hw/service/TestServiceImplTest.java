@@ -44,7 +44,7 @@ public class TestServiceImplTest {
         testServiceImpl.executeTest();
 
         assertAll("Проверка TestServiceImpl на пустом списке",
-                () -> verify(ioService, times(1)).printFormattedLine(anyString()),
+                () -> verify(ioService, times(1)).printLine(anyString()),
                 () -> verify(questionDao, times(1)).findAll()
         );
     }
@@ -62,10 +62,9 @@ public class TestServiceImplTest {
 
         assertAll("Проверка TestServiceImpl, одна запись от DAO",
                 () -> verify(questionDao, times(1)).findAll(),
-                () -> verify(ioService, times(1)).printFormattedLine(anyString()),
+                () -> verify(ioService, times(2)).printLine(anyString()),
                 () -> verify(ioService, times(1)).printFormattedLine(anyString(), any()),
-                () -> verify(ioService, times(2)).printFormattedLine(anyString(), any(), any()),
-                () -> verify(ioService, times(1)).printLine(anyString())
+                () -> verify(ioService, times(2)).printFormattedLine(anyString(), any(), any())
         );
     }
 
@@ -78,7 +77,7 @@ public class TestServiceImplTest {
 
         assertAll("Проверка TestServiceImpl, исключение от DAO",
                 () -> verify(questionDao, times(1)).findAll(),
-                () -> verify(ioService, times(1)).printFormattedLine(anyString())
+                () -> verify(ioService, times(1)).printLine(anyString())
         );
     }
 }
