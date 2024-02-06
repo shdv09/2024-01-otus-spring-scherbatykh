@@ -31,7 +31,7 @@ public class CsvQuestionDaoTest {
 
     private static final String ERROR_MESSAGE = "File not found: dao/csvQuestionDao/csvResource/wuestions.csv";
 
-    public static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private TestFileNameProvider fileNameProvider;
     private CsvQuestionDao csvQuestionDao;
