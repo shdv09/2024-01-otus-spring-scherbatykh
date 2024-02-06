@@ -29,6 +29,8 @@ public class CsvQuestionDaoTest {
     private static final String PATH_JSON_REFERENCE_FILE = "/dao/csvQuestionDao/reference/questions.json";
     private static final String PATH_JSON_REFERENCE_FILE_NO_ANSWERS = "/dao/csvQuestionDao/reference/questions_no_answers.json";
 
+    private static final String ERROR_MESSAGE = "File not found: dao/csvQuestionDao/csvResource/wuestions.csv";
+
     public static final ObjectMapper MAPPER = new ObjectMapper();
 
     private TestFileNameProvider fileNameProvider;
@@ -91,10 +93,11 @@ public class CsvQuestionDaoTest {
     void test4() {
         when(fileNameProvider.getTestFileName()).thenReturn(TEST_RESOURCE_NAME.replace("q", "w"));
 
-        assertThrows(QuestionReadException.class, () -> csvQuestionDao.findAll());
+        QuestionReadException exception = assertThrows(QuestionReadException.class, () -> csvQuestionDao.findAll());
 
         assertAll("CsvQuestionDao. Ошибка, файл не найден",
-                () -> verify(fileNameProvider, times(1)).getTestFileName()
+                () -> verify(fileNameProvider, times(1)).getTestFileName(),
+                () -> assertEquals(ERROR_MESSAGE, exception.getMessage())
         );
     }
 

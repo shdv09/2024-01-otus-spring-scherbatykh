@@ -17,6 +17,8 @@ import java.util.List;
 public class CsvQuestionDao implements QuestionDao {
     private static final String FILE_NOT_FOUND_ERROR_MESSAGE = "File not found: ";
 
+    private static final String IO_ERROR_MESSAGE = "Error while closing input stream. Filename: ";
+
     private final TestFileNameProvider fileNameProvider;
 
     @Override
@@ -39,7 +41,7 @@ public class CsvQuestionDao implements QuestionDao {
                     .map(QuestionDto::toDomainObject)
                     .toList();
         } catch (IOException e) {
-            throw new QuestionReadException(FILE_NOT_FOUND_ERROR_MESSAGE + testFileName, null);
+            throw new QuestionReadException(IO_ERROR_MESSAGE + testFileName, e);
         }
     }
 }
