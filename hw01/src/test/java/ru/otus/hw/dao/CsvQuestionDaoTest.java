@@ -1,14 +1,14 @@
-package ru.otus.hw.service;
+package ru.otus.hw.dao;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.otus.hw.config.TestFileNameProvider;
-import ru.otus.hw.dao.CsvQuestionDao;
 import ru.otus.hw.domain.Question;
 import ru.otus.hw.exceptions.QuestionReadException;
 
@@ -31,10 +31,15 @@ public class CsvQuestionDaoTest {
 
     private static final String ERROR_MESSAGE = "File not found: dao/csvQuestionDao/csvResource/wuestions.csv";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static ObjectMapper MAPPER;
 
     private TestFileNameProvider fileNameProvider;
     private CsvQuestionDao csvQuestionDao;
+
+    @BeforeAll
+    static void initStatic() {
+        MAPPER = new ObjectMapper();
+    }
 
     @BeforeEach
     void init() {
