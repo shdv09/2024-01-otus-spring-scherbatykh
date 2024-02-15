@@ -9,6 +9,7 @@ import ru.otus.hw.dao.CsvQuestionDao;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
+import ru.otus.hw.domain.Student;
 import ru.otus.hw.exceptions.QuestionReadException;
 
 import java.util.Collections;
@@ -19,12 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class TestServiceImplTest {
+    private static final String STUDENT_FIRST_NAME = "Ivan";
+    private static final String STUDENT_LAST_NAME = "Ivanov";
+
     private IOService ioService;
     private QuestionDao questionDao;
+    private Student student;
     private TestServiceImpl testServiceImpl;
 
     @BeforeEach
     void init() {
+        this.student = new Student(STUDENT_FIRST_NAME, STUDENT_LAST_NAME);
         this.ioService = Mockito.mock(StreamsIOService.class);
         this.questionDao = Mockito.mock(CsvQuestionDao.class);
         this.testServiceImpl = new TestServiceImpl(ioService, questionDao);
@@ -41,7 +47,7 @@ public class TestServiceImplTest {
         List<Question> daoResult = Collections.emptyList();
         when(questionDao.findAll()).thenReturn(daoResult);
 
-        testServiceImpl.executeTest();
+        testServiceImpl.executeTestFor(student);
 
         assertAll("Проверка TestServiceImpl на пустом списке",
                 () -> verify(ioService, times(1)).printLine(anyString()),
@@ -58,13 +64,15 @@ public class TestServiceImplTest {
         List<Question> daoResult = Collections.singletonList(question);
         when(questionDao.findAll()).thenReturn(daoResult);
 
-        testServiceImpl.executeTest();
+        testServiceImpl.executeTestFor(student);
 
         assertAll("Проверка TestServiceImpl, одна запись от DAO",
                 () -> verify(questionDao, times(1)).findAll(),
-                () -> verify(ioService, times(2)).printLine(anyString()),
+                () -> verify(ioService, times(1)).printLine(anyString()),
                 () -> verify(ioService, times(1)).printFormattedLine(anyString(), any()),
-                () -> verify(ioService, times(2)).printFormattedLine(anyString(), any(), any())
+                () -> verify(ioService, times(2)).printFormattedLine(anyString(), any(), any()),
+                () -> verify(ioService, times(1))
+                        .readIntForRangeWithPrompt(eq(1), eq(answers.size()), anyString(), anyString())
         );
     }
 
@@ -73,7 +81,7 @@ public class TestServiceImplTest {
     void test2() {
         doThrow(QuestionReadException.class).when(questionDao).findAll();
 
-        assertThrows(QuestionReadException.class, () -> testServiceImpl.executeTest());
+        assertThrows(QuestionReadException.class, () -> testServiceImpl.executeTestFor(student));
 
         assertAll("Проверка TestServiceImpl, исключение от DAO",
                 () -> verify(questionDao, times(1)).findAll(),

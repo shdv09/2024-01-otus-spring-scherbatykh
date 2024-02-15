@@ -7,6 +7,7 @@ import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -20,6 +21,6 @@ public class QuestionDto {
     private List<Answer> answers;
 
     public Question toDomainObject() {
-        return new Question(text, answers);
+        return new Question(text, answers == null ? Collections.emptyList() : answers);
     }
 }
