@@ -1,8 +1,10 @@
 package ru.otus.hw.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
+import ru.otus.hw.domain.Question;
 import ru.otus.hw.domain.Student;
 import ru.otus.hw.domain.TestResult;
 
@@ -17,7 +19,7 @@ import static org.mockito.Mockito.*;
 public class TestRunnerServiceImplTest {
     private static final String STUDENT_FIRST_NAME = "Ivan";
     private static final String STUDENT_LAST_NAME = "Ivanov";
-    private static final String PATH_JSON_TEST_RESULT = "/service/testRunnerServiceImpl/testResult.json";
+    private static final String PATH_JSON_QUESTIONS = "/service/testRunnerServiceImpl/questions.json";
 
     private TestService testService;
     private StudentService studentService;
@@ -50,7 +52,12 @@ public class TestRunnerServiceImplTest {
     void test() throws Exception {
         Student student = new Student(STUDENT_FIRST_NAME, STUDENT_LAST_NAME);
         when(studentService.determineCurrentStudent()).thenReturn(student);
-        TestResult testResult = mapper.readValue(getFileContent(PATH_JSON_TEST_RESULT), TestResult.class);
+        TestResult testResult = new TestResult(student);
+        List<Question> questions = mapper.readValue(getFileContent(PATH_JSON_QUESTIONS), new TypeReference<>(){});
+        for (var question : questions) {
+            testResult.applyAnswer(question, false);
+        }
+        testResult.setRightAnswersCount(2);
         when(testService.executeTestFor(student)).thenReturn(testResult);
         doNothing().when(resultService).showResult(testResult);
 

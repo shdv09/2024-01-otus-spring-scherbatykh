@@ -9,7 +9,6 @@ import ru.otus.hw.domain.Student;
 import ru.otus.hw.domain.TestResult;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +33,9 @@ public class TestServiceImpl implements TestService {
         for (var question : questions) {
             ioService.printFormattedLine("%nQ: %s%nA:", question.text());
             printAnswers(question.answers());
-            int correctAnswer = getCorrectAnswer(question.answers());
-            int userAnswer = readUserAnswer(question.answers().size());
-            boolean isAnswerValid = correctAnswer == userAnswer;
+            int userInput = readUserInput(question.answers().size());
+            Answer answer = question.answers().get(userInput - 1);
+            boolean isAnswerValid = answer.isCorrect();
             testResult.applyAnswer(question, isAnswerValid);
         }
         return testResult;
@@ -49,15 +48,7 @@ public class TestServiceImpl implements TestService {
         }
     }
 
-    private int getCorrectAnswer(List<Answer> answers) {
-        return IntStream.range(0, answers.size())
-                .filter(i -> answers.get(i).isCorrect())
-                .map(i -> i + 1)
-                .findFirst()
-                .orElse(0);
-    }
-
-    private int readUserAnswer(int numberOfAnswers) {
+    private int readUserInput(int numberOfAnswers) {
         return ioService.readIntForRangeWithPrompt(1, numberOfAnswers,
                 String.format(INPUT_PROMPT, 1, numberOfAnswers),
                 String.format(INPUT_ERROR_MESSAGE, 1, numberOfAnswers));

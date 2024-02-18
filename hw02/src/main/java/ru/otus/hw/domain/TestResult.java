@@ -1,7 +1,5 @@
 package ru.otus.hw.domain;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -15,8 +13,7 @@ public class TestResult {
 
     private int rightAnswersCount;
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public TestResult(@JsonProperty("student") Student student) {
+    public TestResult(Student student) {
         this.student = student;
         this.answeredQuestions = new ArrayList<>();
     }
