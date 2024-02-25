@@ -23,7 +23,7 @@ public class TestServiceImplTest {
     private static final String STUDENT_FIRST_NAME = "Ivan";
     private static final String STUDENT_LAST_NAME = "Ivanov";
 
-    private LocalizedIOService ioService;
+    private LocalizedIOService localizedIoService;
     private QuestionDao questionDao;
     private Student student;
     private TestServiceImpl testServiceImpl;
@@ -31,14 +31,14 @@ public class TestServiceImplTest {
     @BeforeEach
     void init() {
         this.student = new Student(STUDENT_FIRST_NAME, STUDENT_LAST_NAME);
-        this.ioService = Mockito.mock(LocalizedIOService.class);
+        this.localizedIoService = Mockito.mock(LocalizedIOService.class);
         this.questionDao = Mockito.mock(CsvQuestionDao.class);
-        this.testServiceImpl = new TestServiceImpl(ioService, questionDao);
+        this.testServiceImpl = new TestServiceImpl(localizedIoService, questionDao);
     }
 
     @AfterEach
     void after() {
-        verifyNoMoreInteractions(questionDao, ioService);
+        verifyNoMoreInteractions(questionDao, localizedIoService);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class TestServiceImplTest {
         testServiceImpl.executeTestFor(student);
 
         assertAll("Проверка TestServiceImpl на пустом списке",
-                () -> verify(ioService, times(1)).printLine(anyString()),
+                () -> verify(localizedIoService, times(1)).printLineLocalized(anyString()),
                 () -> verify(questionDao, times(1)).findAll()
         );
     }
@@ -63,18 +63,18 @@ public class TestServiceImplTest {
         Question question = new Question("Question one", answers);
         List<Question> daoResult = Collections.singletonList(question);
         when(questionDao.findAll()).thenReturn(daoResult);
-        when(ioService.readIntForRangeWithPrompt(eq(1), eq(answers.size()), anyString(), anyString()))
+        when(localizedIoService.readIntForRangeWithPromptLocalized(eq(1), eq(answers.size()), anyString(), anyString()))
                 .thenReturn(1);
 
         testServiceImpl.executeTestFor(student);
 
         assertAll("Проверка TestServiceImpl, одна запись от DAO",
                 () -> verify(questionDao, times(1)).findAll(),
-                () -> verify(ioService, times(1)).printLine(anyString()),
-                () -> verify(ioService, times(1)).printFormattedLine(anyString(), any()),
-                () -> verify(ioService, times(2)).printFormattedLine(anyString(), any(), any()),
-                () -> verify(ioService, times(1))
-                        .readIntForRangeWithPrompt(eq(1), eq(answers.size()), anyString(), anyString())
+                () -> verify(localizedIoService, times(1)).printLineLocalized(anyString()),
+                () -> verify(localizedIoService, times(1)).printFormattedLine(anyString(), any()),
+                () -> verify(localizedIoService, times(2)).printFormattedLine(anyString(), any(), any()),
+                () -> verify(localizedIoService, times(1))
+                        .readIntForRangeWithPromptLocalized(eq(1), eq(answers.size()), anyString(), anyString())
         );
     }
 
@@ -87,7 +87,7 @@ public class TestServiceImplTest {
 
         assertAll("Проверка TestServiceImpl, исключение от DAO",
                 () -> verify(questionDao, times(1)).findAll(),
-                () -> verify(ioService, times(1)).printLine(anyString())
+                () -> verify(localizedIoService, times(1)).printLineLocalized(anyString())
         );
     }
 }
