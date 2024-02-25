@@ -13,17 +13,14 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService {
-    private static final String INPUT_ERROR_MESSAGE = "Error. Number is not between %d and %d";
 
-    private static final String INPUT_PROMPT = "Please enter number between %d and %d";
-
-    private final IOService ioService;
+    private final LocalizedIOService localizedIoService;
 
     private final QuestionDao questionDao;
 
     @Override
     public TestResult executeTestFor(Student student) {
-        ioService.printLine("\nPlease answer the questions below");
+        localizedIoService.printLineLocalized("TestService.answer.the.questions");
         var testResult = new TestResult(student);
         var questions = questionDao.findAll();
         if (CollectionUtils.isEmpty(questions)) {
@@ -31,7 +28,7 @@ public class TestServiceImpl implements TestService {
         }
 
         for (var question : questions) {
-            ioService.printFormattedLine("%nQ: %s%nA:", question.text());
+            localizedIoService.printFormattedLine("%nQ: %s%nA:", question.text());
             printAnswers(question.answers());
             int userInput = readUserInput(question.answers().size());
             Answer answer = question.answers().get(userInput - 1);
@@ -44,13 +41,13 @@ public class TestServiceImpl implements TestService {
     private void printAnswers(List<Answer> answers) {
         for (int i = 0; i < answers.size(); i++) {
             var answer = answers.get(i);
-            ioService.printFormattedLine("\t%d. %s", i + 1, answer.text());
+            localizedIoService.printFormattedLine("\t%d. %s", i + 1, answer.text());
         }
     }
 
     private int readUserInput(int numberOfAnswers) {
-        return ioService.readIntForRangeWithPrompt(1, numberOfAnswers,
-                String.format(INPUT_PROMPT, 1, numberOfAnswers),
-                String.format(INPUT_ERROR_MESSAGE, 1, numberOfAnswers));
+        return localizedIoService.readIntForRangeWithPromptLocalized(1, numberOfAnswers,
+                "TestService.input.prompt",
+                "TestService.input.error");
     }
 }

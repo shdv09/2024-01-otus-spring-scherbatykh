@@ -1,24 +1,30 @@
 package ru.otus.hw.config;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Component
-@Data
-public class AppProperties implements TestFileNameProvider, TestConfig {
-    private final String testFileName;
+import java.util.Locale;
+import java.util.Map;
 
-    private final int rightAnswerCountToPass;
+@Setter
+@ConfigurationProperties(prefix = "app")
+public class AppProperties implements TestConfig, TestFileNameProvider, LocaleConfig {
 
-    public AppProperties(@Value("${app.test-file-name}") String testFileName,
-                         @Value("${app.right-answer-count-to-pass}") int rightAnswerCountToPass) {
-        this.testFileName = testFileName;
-        this.rightAnswerCountToPass = rightAnswerCountToPass;
+    @Getter
+    private int rightAnswersCountToPass;
+
+    @Getter
+    private Locale locale;
+
+    private Map<String, String> fileNameByLocaleTag;
+
+    public void setLocale(String locale) {
+        this.locale = Locale.forLanguageTag(locale);
     }
 
     @Override
-    public int getRightAnswersCountToPass() {
-        return rightAnswerCountToPass;
+    public String getTestFileName() {
+        return fileNameByLocaleTag.get(locale.toLanguageTag());
     }
 }

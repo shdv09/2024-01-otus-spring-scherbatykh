@@ -23,7 +23,7 @@ public class TestServiceImplTest {
     private static final String STUDENT_FIRST_NAME = "Ivan";
     private static final String STUDENT_LAST_NAME = "Ivanov";
 
-    private IOService ioService;
+    private LocalizedIOService ioService;
     private QuestionDao questionDao;
     private Student student;
     private TestServiceImpl testServiceImpl;
@@ -31,7 +31,7 @@ public class TestServiceImplTest {
     @BeforeEach
     void init() {
         this.student = new Student(STUDENT_FIRST_NAME, STUDENT_LAST_NAME);
-        this.ioService = Mockito.mock(StreamsIOService.class);
+        this.ioService = Mockito.mock(LocalizedIOService.class);
         this.questionDao = Mockito.mock(CsvQuestionDao.class);
         this.testServiceImpl = new TestServiceImpl(ioService, questionDao);
     }
