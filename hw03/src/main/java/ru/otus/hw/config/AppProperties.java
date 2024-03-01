@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Setter
 @ConfigurationProperties(prefix = "app")
-public class AppProperties implements TestConfig, TestFileNameProvider, LocaleConfig {
+public class AppProperties implements TestConfig, TestFileNameProvider, LocaleProvider {
 
     @Getter
     private int rightAnswersCountToPass;
