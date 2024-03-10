@@ -21,7 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {CsvQuestionDao.class, AppProperties.class, TestBeanConfig.class})
+@SpringBootTest(classes = TestBeanConfig.class)
 public class CsvQuestionDaoTest {
     private static final String TEST_RESOURCE_NAME = "dao/csvQuestionDao/csvResource/questions.csv";
     private static final String EMPTY_TEST_RESOURCE_NAME = "dao/csvQuestionDao/csvResource/questions_empty.csv";
@@ -33,7 +33,7 @@ public class CsvQuestionDaoTest {
     private static final String ERROR_MESSAGE = "File not found: dao/csvQuestionDao/csvResource/wuestions.csv";
 
     @MockBean
-    private TestFileNameProvider fileNameProvider;
+    private AppProperties fileNameProvider;
     @Autowired
     private CsvQuestionDao csvQuestionDao;
     @Autowired
