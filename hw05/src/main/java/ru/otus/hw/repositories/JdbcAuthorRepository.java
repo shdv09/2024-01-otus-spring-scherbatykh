@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public class JdbcAuthorRepository implements AuthorRepository {
     private static final String FIND_ALL_SQL = "SELECT id, full_name FROM authors";
+
     private static final String FIND_BY_ID_SQL = "SELECT id, full_name FROM authors WHERE id = :id";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;

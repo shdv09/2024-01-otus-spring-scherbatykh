@@ -17,7 +17,7 @@ import java.util.Optional;
 public class JdbcGenreRepository implements GenreRepository {
     private static final String FIND_ALL_SQL = "SELECT id, name FROM genres";
 
-    private static final String FIND_BY_ID_SQL = "SELECT id, name FROM genres WHERE id := id";
+    private static final String FIND_BY_ID_SQL = "SELECT id, name FROM genres WHERE id = :id";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 

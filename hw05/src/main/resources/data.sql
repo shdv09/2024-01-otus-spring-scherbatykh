@@ -1,8 +1,8 @@
 insert into authors(full_name)
-values ('Robert Heinlein'), ('Boris Strugatsky'), ('Mikhail Zoschenko');
+values ('Джошуа Блох'), ('Борис Стругацкий'), ('Михаил Зощенко');
 
 insert into genres(name)
-values ('Genre_1'), ('Genre_2'), ('Genre_3');
+values ('Программирование'), ('Фантастика'), ('Сатира');
 
 insert into books(title, author_id, genre_id)
-values ('BookTitle_1', 1, 1), ('BookTitle_2', 2, 2), ('BookTitle_3', 3, 3);
+values ('Java. Эффективное программирование', 1, 1), ('Пикник на обочине', 2, 2), ('Голубая книга', 3, 3);
