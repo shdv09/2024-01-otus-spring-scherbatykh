@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Repository
@@ -18,6 +18,8 @@ public class JdbcGenreRepository implements GenreRepository {
     private static final String FIND_ALL_SQL = "SELECT id, name FROM genres";
 
     private static final String FIND_BY_ID_SQL = "SELECT id, name FROM genres WHERE id = :id";
+
+    private static final String FIND_BY_IDS_SQL = "SELECT id, name FROM genres WHERE id IN (:ids)";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -27,9 +29,8 @@ public class JdbcGenreRepository implements GenreRepository {
     }
 
     @Override
-    public Optional<Genre> findById(long id) {
-        return jdbcTemplate.query(FIND_BY_ID_SQL, Map.of("id", id), new GenreRowMapper()).stream()
-                .findFirst();
+    public List<Genre> findAllByIds(Set<Long> ids) {
+        return jdbcTemplate.query(FIND_BY_IDS_SQL, Map.of("ids", ids), new GenreRowMapper());
     }
 
     private static class GenreRowMapper implements RowMapper<Genre> {

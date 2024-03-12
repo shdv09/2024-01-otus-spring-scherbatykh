@@ -10,6 +10,7 @@ import ru.otus.hw.repositories.GenreRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -31,13 +32,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book insert(String title, long authorId, long genreId) {
-        return save(0, title, authorId, genreId);
+    public Book insert(String title, long authorId, Set<Long> genreIds) {
+        return save(0, title, authorId, genreIds);
     }
 
     @Override
-    public Book update(long id, String title, long authorId, long genreId) {
-        return save(id, title, authorId, genreId);
+    public Book update(long id, String title, long authorId, Set<Long> genreIds) {
+        return save(id, title, authorId, genreIds);
     }
 
     @Override
@@ -45,12 +46,11 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(id);
     }
 
-    private Book save(long id, String title, long authorId, long genreId) {
+    private Book save(long id, String title, long authorId, Set<Long> genreIds) {
         var author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new EntityNotFoundException("Author with id %d not found".formatted(authorId)));
-        var genre = genreRepository.findById(genreId)
-                .orElseThrow(() -> new EntityNotFoundException("Genre with id %d not found".formatted(genreId)));
-        var book = new Book(id, title, author, genre);
+        var genres = genreRepository.findAllByIds(genreIds);
+        var book = new Book(id, title, author, genres);
         return bookRepository.save(book);
     }
 }
