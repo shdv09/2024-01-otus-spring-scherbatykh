@@ -21,6 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
@@ -121,16 +123,13 @@ public class JdbcBookRepository implements BookRepository {
 
     private void mergeBooksInfo(List<Book> booksWithoutGenres, List<Genre> genres,
                                 List<BookGenreRelation> relations) {
-        booksWithoutGenres.forEach(book ->
-                book.setGenres(relations.stream()
-                        .filter(rel -> rel.bookId == book.getId())
-                        .map(BookGenreRelation::genreId)
-                        .map(genreId ->
-                                genres.stream()
-                                        .filter(genre -> genre.getId() == genreId)
-                                        .findFirst()
-                                        .orElse(null))
-                        .toList()));
+        Map<Long, Genre> genreDict = genres.stream().collect(Collectors.toMap(Genre::getId, Function.identity()));
+        Map<Long, Book> booksDict = booksWithoutGenres.stream().collect(Collectors.toMap(Book::getId, Function.identity()));
+        relations.forEach(rel -> {
+            if (booksDict.containsKey(rel.bookId()) && genreDict.containsKey(rel.genreId())) {
+                booksDict.get(rel.bookId).getGenres().add(genreDict.get(rel.genreId()));
+            }
+        });
     }
 
     private Book insert(Book book) {
@@ -186,7 +185,7 @@ public class JdbcBookRepository implements BookRepository {
             Author author = new Author(rs.getLong("author_id"), rs.getString("author_full_name"));
             long bookId = rs.getLong("book_id");
             String bookTitle = rs.getString("book_title");
-            return new Book(bookId, bookTitle, author, null);
+            return new Book(bookId, bookTitle, author, new LinkedList<>());
         }
     }
 
