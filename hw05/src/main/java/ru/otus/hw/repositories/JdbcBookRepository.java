@@ -123,8 +123,10 @@ public class JdbcBookRepository implements BookRepository {
 
     private void mergeBooksInfo(List<Book> booksWithoutGenres, List<Genre> genres,
                                 List<BookGenreRelation> relations) {
-        Map<Long, Genre> genreDict = genres.stream().collect(Collectors.toMap(Genre::getId, Function.identity()));
-        Map<Long, Book> booksDict = booksWithoutGenres.stream().collect(Collectors.toMap(Book::getId, Function.identity()));
+        Map<Long, Genre> genreDict = genres.stream()
+                .collect(Collectors.toMap(Genre::getId, Function.identity()));
+        Map<Long, Book> booksDict = booksWithoutGenres.stream()
+                .collect(Collectors.toMap(Book::getId, Function.identity()));
         relations.forEach(rel -> {
             if (booksDict.containsKey(rel.bookId()) && genreDict.containsKey(rel.genreId())) {
                 booksDict.get(rel.bookId).getGenres().add(genreDict.get(rel.genreId()));
