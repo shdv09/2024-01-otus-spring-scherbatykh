@@ -1,16 +1,16 @@
 package ru.otus.hw.repositories;
 
-import ru.otus.hw.models.Book;
+import ru.otus.hw.dto.BookDto;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface BookRepository {
-    Optional<Book> findById(long id);
+    Optional<BookDto> findById(long id);
 
-    List<Book> findAll();
+    List<BookDto> findAll();
 
-    Book save(Book book);
+    BookDto save(BookDto book);
 
     void deleteById(long id);
 }

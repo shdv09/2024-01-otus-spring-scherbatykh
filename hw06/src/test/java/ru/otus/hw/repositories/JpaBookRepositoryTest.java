@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.dto.converters.AuthorDtoConverter;
+import ru.otus.hw.dto.converters.BookDtoConverter;
+import ru.otus.hw.dto.converters.GenreDtoConverter;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -17,11 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Репозиторий на основе Jpa для работы с книгами ")
 @DataJpaTest
-@Import({JpaBookRepository.class})
-class JdbcBookRepositoryTest {
+@Import({JpaBookRepository.class, BookDtoConverter.class, AuthorDtoConverter.class, GenreDtoConverter.class})
+class JpaBookRepositoryTest {
 
     @Autowired
     private TestEntityManager em;
+
+    @Autowired
+    private BookDtoConverter converter;
 
     @Autowired
     private JpaBookRepository JpaBookrepository;
@@ -29,7 +36,7 @@ class JdbcBookRepositoryTest {
     @DisplayName("должен загружать книгу по id")
     @Test
     void shouldReturnCorrectBookById() {
-        Book expectedBook = em.find(Book.class, 1);
+        BookDto expectedBook = converter.toDto(em.find(Book.class, 1));
         var actualBook = JpaBookrepository.findById(expectedBook.getId());
         assertThat(actualBook).isPresent()
                 .get()
@@ -51,12 +58,12 @@ class JdbcBookRepositoryTest {
         Author author = em.find(Author.class, 2);
         Genre genre4 = em.find(Genre.class, 4);
         Genre genre5 = em.find(Genre.class, 5);
-        var expectedBook = new Book(0L, "Title4", author, List.of(genre4, genre5));
+        var expectedBook = converter.toDto(new Book(0L, "Title4", author, List.of(genre4, genre5)));
 
         var returnedBook = JpaBookrepository.save(expectedBook);
         assertThat(returnedBook).isNotNull()
                 .matches(book -> book.getId() > 0)
-                .usingRecursiveComparison().ignoringExpectedNullFields().isEqualTo(expectedBook);
+                .usingRecursiveComparison().ignoringFields("id").ignoringExpectedNullFields().isEqualTo(expectedBook);
 
         assertThat(JpaBookrepository.findById(returnedBook.getId()))
                 .isPresent()
@@ -70,7 +77,7 @@ class JdbcBookRepositoryTest {
         Author author = em.find(Author.class, 2);
         Genre genre4 = em.find(Genre.class, 4);
         Genre genre5 = em.find(Genre.class, 5);
-        var expectedBook = new Book(1L, "BookTitle_10500", author, List.of(genre4, genre5));
+        var expectedBook = converter.toDto(new Book(1L, "BookTitle_10500", author, List.of(genre4, genre5)));
 
         assertThat(JpaBookrepository.findById(expectedBook.getId()))
                 .isPresent()
