@@ -5,4 +5,10 @@ spring:
     init:
       mode: always
       data-locations: data.sql
-      schema-locations: schema.sql
+  jpa:
+    generate-ddl: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
