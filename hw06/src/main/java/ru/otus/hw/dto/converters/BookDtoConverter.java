@@ -5,12 +5,16 @@ import org.springframework.stereotype.Component;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.models.Book;
 
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class BookDtoConverter {
     private final AuthorDtoConverter authorDtoConverter;
 
     private final GenreDtoConverter genreDtoConverter;
+
+    private final CommentDtoConverter commentDtoConverter;
 
     public BookDto toDto(Book book) {
         if (book == null) {
@@ -23,6 +27,9 @@ public class BookDtoConverter {
         result.setGenres(book.getGenres().stream()
                 .map(genreDtoConverter::toDto)
                 .toList());
+        result.setComments(book.getComments().stream()
+                .map(commentDtoConverter::toDto)
+                .collect(Collectors.toList()));
         return result;
     }
 
@@ -37,6 +44,9 @@ public class BookDtoConverter {
         result.setGenres(dto.getGenres().stream()
                 .map(genreDtoConverter::fromDto)
                 .toList());
+        result.setComments(dto.getComments().stream()
+                .map(commentDtoConverter::fromDto)
+                .collect(Collectors.toList()));
         return result;
     }
 }

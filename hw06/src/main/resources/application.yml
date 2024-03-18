@@ -15,5 +15,5 @@ spring:
     defer-datasource-initialization: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
     show-sql: true

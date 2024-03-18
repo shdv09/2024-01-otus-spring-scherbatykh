@@ -7,6 +7,7 @@ import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
+import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.repositories.GenreRepository;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public class BookServiceImpl implements BookService {
     private final GenreRepository genreRepository;
 
     private final BookRepository bookRepository;
+
+    private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -56,7 +59,8 @@ public class BookServiceImpl implements BookService {
         var author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new EntityNotFoundException("Author with id %d not found".formatted(authorId)));
         var genres = genreRepository.findAllByIds(genreIds);
-        var book = new BookDto(id, title, author, genres);
+        var comments = commentRepository.findByBookId(id);
+        var book = new BookDto(id, title, author, genres, comments);
         return bookRepository.save(book);
     }
 }

@@ -39,9 +39,9 @@ public class JpaBookRepository implements BookRepository {
     public BookDto save(BookDto bookDto) {
         Book book = bookDtoConverter.fromDto(bookDto);
         if (book.getId() == 0) {
-            return insert(book);
+            return bookDtoConverter.toDto(insert(book));
         }
-        return update(book);
+        return bookDtoConverter.toDto(update(book));
     }
 
     @Override
@@ -53,12 +53,12 @@ public class JpaBookRepository implements BookRepository {
         entityManager.remove(book);
     }
 
-    private BookDto insert(Book book) {
+    private Book insert(Book book) {
         entityManager.persist(book);
-        return bookDtoConverter.toDto(book);
+        return book;
     }
 
-    private BookDto update(Book book) {
-        return bookDtoConverter.toDto(entityManager.merge(book));
+    private Book update(Book book) {
+        return entityManager.merge(book);
     }
 }
