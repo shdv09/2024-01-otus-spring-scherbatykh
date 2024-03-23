@@ -75,9 +75,8 @@ class JpaBookRepositoryTest {
         Author author = em.find(Author.class, 2);
         Genre genre4 = em.find(Genre.class, 4);
         Genre genre5 = em.find(Genre.class, 5);
-        Comment comment = new Comment(0L, "text1");
         var expectedBook =
-                new Book(1L, "BookTitle_10500", author, List.of(genre4, genre5), List.of(comment));
+                new Book(1L, "BookTitle_10500", author, List.of(genre4, genre5), Collections.emptyList());
 
         assertThat(JpaBookrepository.findById(expectedBook.getId()))
                 .isPresent()
@@ -87,9 +86,7 @@ class JpaBookRepositoryTest {
         var returnedBook = JpaBookrepository.save(expectedBook);
         assertThat(returnedBook).isNotNull()
                 .matches(book -> book.getId() > 0)
-                .matches(book -> book.getComments().get(0).getId() > 0)
                 .usingRecursiveComparison()
-                .withComparatorForType(Comparator.comparing(CommentDto::getText), CommentDto.class)
                 .ignoringExpectedNullFields().isEqualTo(expectedBook);
 
         assertThat(JpaBookrepository.findById(returnedBook.getId()))

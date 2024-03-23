@@ -9,4 +9,6 @@ public interface CommentRepository {
     List<Comment> findByBookId(long bookId);
 
     Optional<Comment> findById(long id);
+
+    Comment save(Comment comment);
 }

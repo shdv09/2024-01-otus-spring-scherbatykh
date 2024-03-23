@@ -21,7 +21,7 @@ public class CommentCommands {
     //ac 1 goodBook
     @ShellMethod(value = "Add comment", key = "ac")
     String addComment(long bookId, String commentText) {
-        List<CommentDto> comments = commentService.addComment(bookId, commentText);
+        List<CommentDto> comments = commentService.insert(bookId, commentText);
         return comments.stream()
                 .map(commentConverter::commentToString)
                 .map("{%s}"::formatted)
@@ -34,5 +34,12 @@ public class CommentCommands {
         return commentService.findById(id)
                 .map(commentConverter::commentToString)
                 .orElseThrow(() -> new EntityNotFoundException("Comment with id = %d not found".formatted(id)));
+    }
+
+    //cupd 1 likeIt
+    @ShellMethod(value = "Update comment", key = "cupd")
+    String updateComment(long id, String commentText) {
+        CommentDto comment = commentService.update(id, commentText);
+        return commentConverter.commentToString(comment);
     }
 }

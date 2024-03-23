@@ -9,9 +9,9 @@ import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
-import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.repositories.GenreRepository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -24,8 +24,6 @@ public class BookServiceImpl implements BookService {
     private final GenreRepository genreRepository;
 
     private final BookRepository bookRepository;
-
-    private final CommentRepository commentRepository;
 
     private final BookMapper bookMapper;
 
@@ -52,6 +50,10 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto update(long id, String title, long authorId, Set<Long> genreIds) {
+        var bookPresent = bookRepository.findById(id).isPresent();
+        if (!bookPresent) {
+            throw new EntityNotFoundException("Book with id %d not found".formatted(id));
+        }
         return save(id, title, authorId, genreIds);
     }
 
@@ -65,8 +67,7 @@ public class BookServiceImpl implements BookService {
         var author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new EntityNotFoundException("Author with id %d not found".formatted(authorId)));
         var genres = genreRepository.findAllByIds(genreIds);
-        var comments = commentRepository.findByBookId(id);
-        var book = new Book(id, title, author, genres, comments);
+        var book = new Book(id, title, author, genres, Collections.emptyList());
         return bookMapper.toDto(bookRepository.save(book));
     }
 }

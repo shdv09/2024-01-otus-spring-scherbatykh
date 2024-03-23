@@ -25,13 +25,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public List<CommentDto> addComment(long bookId, String commentText) {
+    public List<CommentDto> insert(long bookId, String commentText) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book with id = %d not found".formatted(bookId)));
         Comment comment = new Comment();
         comment.setText(commentText);
-        book.getComments().add(comment);
-        bookRepository.save(book);
+        comment.setBook(book);
+        commentRepository.save(comment);
         List<Comment> comments = commentRepository.findByBookId(book.getId());
         return comments.stream()
                 .map(commentMapper::toDto)
@@ -42,5 +42,14 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Optional<CommentDto> findById(long id) {
         return commentRepository.findById(id).map(commentMapper::toDto);
+    }
+
+    @Transactional
+    @Override
+    public CommentDto update(long id, String text) {
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Comment with id = %d not found".formatted(id)));
+        comment.setText(text);
+        return commentMapper.toDto(commentRepository.save(comment));
     }
 }

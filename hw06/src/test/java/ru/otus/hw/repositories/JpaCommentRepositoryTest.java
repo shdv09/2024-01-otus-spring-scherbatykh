@@ -48,4 +48,17 @@ class JpaCommentRepositoryTest {
 
         assertThat(actualComments).usingRecursiveComparison().isEqualTo(expectedComments);
     }
+
+    @DisplayName("должен изменять текст комментария")
+    @Test
+    void shouldUpdateCommentById() {
+        Comment comment = em.find(Comment.class, 1L);
+        comment.setText("updated text");
+
+        var actualComment = jpaCommentRepository.save(comment);
+
+        assertThat(actualComment)
+                .usingRecursiveComparison()
+                .isEqualTo(comment);
+    }
 }
