@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import ru.otus.hw.dto.GenreDto;
-import ru.otus.hw.dto.converters.GenreDtoConverter;
+import ru.otus.hw.dto.mappers.GenreMapper;
 import ru.otus.hw.models.Genre;
 
 import java.util.List;
@@ -18,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Репозиторий на основе Jpa для работы с жанрами ")
 @DataJpaTest
-@Import({JpaGenreRepository.class, GenreDtoConverter.class})
+@Import({JpaGenreRepository.class})
 class JpaGenreRepositoryTest {
 
     @Autowired
@@ -35,7 +34,7 @@ class JpaGenreRepositoryTest {
         Genre genre3 = em.find(Genre.class, 3L);
         List<Genre> expectedGenres = List.of(genre1, genre2, genre3);
 
-        List<GenreDto> actualGenres = jpaGenreRepository.findAllByIds(Set.of(1L, 2L, 3L));
+        List<Genre> actualGenres = jpaGenreRepository.findAllByIds(Set.of(1L, 2L, 3L));
 
         assertThat(actualGenres)
                 .usingRecursiveComparison()
@@ -45,7 +44,7 @@ class JpaGenreRepositoryTest {
     @DisplayName("должен загружать список всех жанров")
     @Test
     void shouldReturnCorrectGenresList() {
-        List<GenreDto> genres = jpaGenreRepository.findAll();
+        List<Genre> genres = jpaGenreRepository.findAll();
 
         assertEquals(6, genres.size());
         genres.forEach(System.out::println);

@@ -1,12 +1,12 @@
 package ru.otus.hw.repositories;
 
-import ru.otus.hw.dto.AuthorDto;
+import ru.otus.hw.models.Author;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface AuthorRepository {
-    List<AuthorDto> findAll();
+    List<Author> findAll();
 
-    Optional<AuthorDto> findById(long id);
+    Optional<Author> findById(long id);
 }

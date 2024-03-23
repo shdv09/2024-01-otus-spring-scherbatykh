@@ -1,11 +1,11 @@
-package ru.otus.hw.dto.converters;
+package ru.otus.hw.dto.mappers;
 
 import org.springframework.stereotype.Component;
 import ru.otus.hw.dto.CommentDto;
 import ru.otus.hw.models.Comment;
 
 @Component
-public class CommentDtoConverter {
+public class CommentMapper {
 
     public CommentDto toDto(Comment comment) {
         if (comment == null) {
@@ -17,7 +17,7 @@ public class CommentDtoConverter {
         return result;
     }
 
-    public Comment fromDto(CommentDto dto) {
+    public Comment toModel(CommentDto dto) {
         if (dto == null) {
             return null;
         }

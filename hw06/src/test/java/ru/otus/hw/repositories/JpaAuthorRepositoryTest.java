@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import ru.otus.hw.dto.AuthorDto;
-import ru.otus.hw.dto.converters.AuthorDtoConverter;
-import ru.otus.hw.dto.converters.CommentDtoConverter;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 
@@ -19,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Репозиторий на основе Jpa для работы с авторами ")
 @DataJpaTest
-@Import({JpaAuthorRepository.class, AuthorDtoConverter.class})
+@Import({JpaAuthorRepository.class})
 class JpaAuthorRepositoryTest {
 
     @Autowired
@@ -45,7 +42,7 @@ class JpaAuthorRepositoryTest {
     @DisplayName("должен загружать список всех авторов")
     @Test
     void shouldReturnCorrectAuthorsList() {
-        List<AuthorDto> authors = jpaAuthorRepository.findAll();
+        List<Author> authors = jpaAuthorRepository.findAll();
 
         assertEquals(3, authors.size());
         authors.forEach(System.out::println);

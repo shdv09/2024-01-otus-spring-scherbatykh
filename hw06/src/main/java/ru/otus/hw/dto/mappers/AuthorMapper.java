@@ -1,11 +1,11 @@
-package ru.otus.hw.dto.converters;
+package ru.otus.hw.dto.mappers;
 
 import org.springframework.stereotype.Component;
 import ru.otus.hw.dto.AuthorDto;
 import ru.otus.hw.models.Author;
 
 @Component
-public class AuthorDtoConverter {
+public class AuthorMapper {
     public AuthorDto toDto(Author author) {
         if (author == null) {
             return null;
@@ -16,7 +16,7 @@ public class AuthorDtoConverter {
         return result;
     }
 
-    public Author fromDto(AuthorDto dto) {
+    public Author toModel(AuthorDto dto) {
         if (dto == null) {
             return null;
         }

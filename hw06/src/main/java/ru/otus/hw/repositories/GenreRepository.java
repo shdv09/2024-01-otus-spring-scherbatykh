@@ -1,12 +1,12 @@
 package ru.otus.hw.repositories;
 
-import ru.otus.hw.dto.GenreDto;
+import ru.otus.hw.models.Genre;
 
 import java.util.List;
 import java.util.Set;
 
 public interface GenreRepository {
-    List<GenreDto> findAll();
+    List<Genre> findAll();
 
-    List<GenreDto> findAllByIds(Set<Long> ids);
+    List<Genre> findAllByIds(Set<Long> ids);
 }

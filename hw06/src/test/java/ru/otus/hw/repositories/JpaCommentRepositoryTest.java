@@ -6,27 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import ru.otus.hw.dto.BookDto;
-import ru.otus.hw.dto.CommentDto;
-import ru.otus.hw.dto.converters.AuthorDtoConverter;
-import ru.otus.hw.dto.converters.BookDtoConverter;
-import ru.otus.hw.dto.converters.CommentDtoConverter;
-import ru.otus.hw.dto.converters.GenreDtoConverter;
-import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Comment;
-import ru.otus.hw.models.Genre;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Репозиторий на основе Jpa для работы с комментариями ")
 @DataJpaTest
-@Import({JpaCommentRepository.class, CommentDtoConverter.class})
+@Import({JpaCommentRepository.class})
 class JpaCommentRepositoryTest {
 
     @Autowired
@@ -55,7 +44,7 @@ class JpaCommentRepositoryTest {
         Book book = em.find(Book.class, 1L);
         List<Comment> expectedComments = book.getComments();
 
-        List<CommentDto> actualComments = jpaCommentRepository.findByBookId(book.getId());
+        List<Comment> actualComments = jpaCommentRepository.findByBookId(book.getId());
 
         assertThat(actualComments).usingRecursiveComparison().isEqualTo(expectedComments);
     }

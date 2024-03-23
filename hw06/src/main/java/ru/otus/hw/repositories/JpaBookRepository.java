@@ -4,8 +4,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.otus.hw.dto.BookDto;
-import ru.otus.hw.dto.converters.BookDtoConverter;
 import ru.otus.hw.models.Book;
 
 import java.util.List;
@@ -18,30 +16,24 @@ public class JpaBookRepository implements BookRepository {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    private final BookDtoConverter bookDtoConverter;
-
     @Override
-    public Optional<BookDto> findById(long id) {
+    public Optional<Book> findById(long id) {
         Book book = entityManager.find(Book.class, id);
-        return Optional.ofNullable(bookDtoConverter.toDto(book));
+        return Optional.ofNullable(book);
     }
 
     @Override
-    public List<BookDto> findAll() {
-        List<Book> books = entityManager.createQuery("select b from Book b join fetch b.author", Book.class)
+    public List<Book> findAll() {
+        return entityManager.createQuery("select b from Book b join fetch b.author", Book.class)
                 .getResultList();
-        return books.stream()
-                .map(bookDtoConverter::toDto)
-                .toList();
     }
 
     @Override
-    public BookDto save(BookDto bookDto) {
-        Book book = bookDtoConverter.fromDto(bookDto);
+    public Book save(Book book) {
         if (book.getId() == 0) {
-            return bookDtoConverter.toDto(insert(book));
+            return create(book);
         }
-        return bookDtoConverter.toDto(update(book));
+        return update(book);
     }
 
     @Override
@@ -53,7 +45,7 @@ public class JpaBookRepository implements BookRepository {
         entityManager.remove(book);
     }
 
-    private Book insert(Book book) {
+    private Book create(Book book) {
         entityManager.persist(book);
         return book;
     }

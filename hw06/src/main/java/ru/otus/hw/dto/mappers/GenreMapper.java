@@ -1,11 +1,11 @@
-package ru.otus.hw.dto.converters;
+package ru.otus.hw.dto.mappers;
 
 import org.springframework.stereotype.Component;
 import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.models.Genre;
 
 @Component
-public class GenreDtoConverter {
+public class GenreMapper {
     public GenreDto toDto(Genre genre) {
         if (genre == null) {
             return null;
@@ -16,7 +16,7 @@ public class GenreDtoConverter {
         return result;
     }
 
-    public Genre fromDto(GenreDto dto) {
+    public Genre toModel(GenreDto dto) {
         if (dto == null) {
             return null;
         }
