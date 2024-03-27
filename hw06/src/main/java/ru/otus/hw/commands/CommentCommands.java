@@ -21,7 +21,7 @@ public class CommentCommands {
     //ac 1 goodBook
     @ShellMethod(value = "Add comment", key = "ac")
     String addComment(long bookId, String commentText) {
-        List<CommentDto> comments = commentService.insert(bookId, commentText);
+        List<CommentDto> comments = commentService.create(bookId, commentText);
         return comments.stream()
                 .map(commentConverter::commentToString)
                 .map("{%s}"::formatted)

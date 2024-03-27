@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,8 @@ import org.hibernate.annotations.FetchMode;
 
 import java.util.List;
 
+@NamedEntityGraph(name = "authors-entity-graph",
+        attributeNodes = {@NamedAttributeNode("author")})
 @Entity
 @Table(name = "books")
 @Getter

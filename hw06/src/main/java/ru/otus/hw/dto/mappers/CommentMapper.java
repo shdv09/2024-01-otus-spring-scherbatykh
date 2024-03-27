@@ -8,9 +8,6 @@ import ru.otus.hw.models.Comment;
 public class CommentMapper {
 
     public CommentDto toDto(Comment comment) {
-        if (comment == null) {
-            return null;
-        }
         CommentDto result = new CommentDto();
         result.setId(comment.getId());
         result.setText(comment.getText());
@@ -18,9 +15,6 @@ public class CommentMapper {
     }
 
     public Comment toModel(CommentDto dto) {
-        if (dto == null) {
-            return null;
-        }
         Comment result = new Comment();
         result.setId(dto.getId());
         result.setText(dto.getText());

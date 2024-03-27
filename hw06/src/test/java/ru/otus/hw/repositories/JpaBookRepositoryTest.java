@@ -6,14 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import ru.otus.hw.dto.CommentDto;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
-import ru.otus.hw.models.Comment;
 import ru.otus.hw.models.Genre;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;

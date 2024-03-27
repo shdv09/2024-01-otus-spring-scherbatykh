@@ -17,9 +17,6 @@ public class BookMapper {
     private final CommentMapper commentDtoConverter;
 
     public BookDto toDto(Book book) {
-        if (book == null) {
-            return null;
-        }
         BookDto result = new BookDto();
         result.setId(book.getId());
         result.setTitle(book.getTitle());
@@ -34,9 +31,6 @@ public class BookMapper {
     }
 
     public Book toModel(BookDto dto) {
-        if (dto == null) {
-            return null;
-        }
         Book result = new Book();
         result.setId(dto.getId());
         result.setTitle(dto.getTitle());

@@ -25,7 +25,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public List<CommentDto> insert(long bookId, String commentText) {
+    public List<CommentDto> create(long bookId, String commentText) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book with id = %d not found".formatted(bookId)));
         Comment comment = new Comment();
