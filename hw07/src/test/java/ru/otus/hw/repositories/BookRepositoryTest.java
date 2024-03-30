@@ -38,7 +38,7 @@ class BookRepositoryTest {
     @DisplayName("должен загружать список всех книг")
     @Test
     void shouldReturnCorrectBooksList() {
-        var actualBooks = bookRepository.findAll();
+        var actualBooks = bookRepository.findAllByOrderByTitleAsc();
 
         assertEquals(3, actualBooks.size());
         actualBooks.forEach(System.out::println);

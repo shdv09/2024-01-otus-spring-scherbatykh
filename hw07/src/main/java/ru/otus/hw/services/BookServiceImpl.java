@@ -38,7 +38,7 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     @Override
     public List<BookDto> findAll() {
-        return bookRepository.findAll().stream()
+        return bookRepository.findAllByOrderByTitleAsc().stream()
                 .map(bookMapper::toDto)
                 .toList();
     }
