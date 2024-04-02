@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,5 +19,5 @@ public class BookDto {
 
     private List<GenreDto> genres;
 
-    private List<CommentDto> comments;
+    private List<CommentDto> comments = new ArrayList<>();
 }

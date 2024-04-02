@@ -51,7 +51,7 @@ class BookRepositoryTest {
         Genre genre4 = em.find(Genre.class, 4);
         Genre genre5 = em.find(Genre.class, 5);
         var expectedBook =
-                new Book(0L, "Title4", author, List.of(genre4, genre5), Collections.emptyList());
+                new Book(0L, "Title4", author, List.of(genre4, genre5));
 
         var returnedBook = bookRepository.save(expectedBook);
         assertThat(returnedBook).isNotNull()
@@ -71,7 +71,7 @@ class BookRepositoryTest {
         Genre genre4 = em.find(Genre.class, 4);
         Genre genre5 = em.find(Genre.class, 5);
         var expectedBook =
-                new Book(1L, "BookTitle_10500", author, List.of(genre4, genre5), Collections.emptyList());
+                new Book(1L, "BookTitle_10500", author, List.of(genre4, genre5));
 
         assertThat(bookRepository.findById(expectedBook.getId()))
                 .isPresent()

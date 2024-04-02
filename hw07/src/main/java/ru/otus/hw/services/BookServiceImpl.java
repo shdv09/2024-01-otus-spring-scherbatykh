@@ -5,18 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.dto.mappers.BookMapper;
+import ru.otus.hw.dto.mappers.CommentMapper;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Book;
-import ru.otus.hw.models.Genre;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
+import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.repositories.GenreRepository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -25,14 +24,20 @@ public class BookServiceImpl implements BookService {
 
     private final GenreRepository genreRepository;
 
+    private final CommentRepository commentRepository;
+
     private final BookRepository bookRepository;
 
     private final BookMapper bookMapper;
 
+    private final CommentMapper commentMapper;
+
     @Transactional(readOnly = true)
     @Override
     public Optional<BookDto> findById(long id) {
-        return bookRepository.findById(id).map(bookMapper::toDto);
+        return bookRepository.findById(id)
+                .map(bookMapper::toDto)
+                .map(this::loadComments);
     }
 
     @Transactional(readOnly = true)
@@ -61,6 +66,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public void deleteById(long id) {
+        commentRepository.deleteByBookId(id);
         bookRepository.deleteById(id);
     }
 
@@ -68,13 +74,17 @@ public class BookServiceImpl implements BookService {
         var author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new EntityNotFoundException("Author with id %d not found".formatted(authorId)));
         var genres = genreRepository.findAllById(genreIds);
-        Set<Long> foundGenreIds = genres.stream()
-                .map(Genre::getId)
-                .collect(Collectors.toSet());
-        if (!foundGenreIds.containsAll(genreIds)) {
+        if (genres.size() != genreIds.size()) {
             throw new EntityNotFoundException("Not all genres found from list %s".formatted(genreIds));
         }
-        var book = new Book(id, title, author, genres, Collections.emptyList());
+        var book = new Book(id, title, author, genres);
         return bookMapper.toDto(bookRepository.save(book));
+    }
+
+    private BookDto loadComments(BookDto dto) {
+        dto.setComments(commentRepository.findByBookId(dto.getId()).stream()
+                .map(commentMapper::toDto)
+                .toList());
+        return dto;
     }
 }

@@ -12,11 +12,4 @@ public class GenreMapper {
         result.setName(genre.getName());
         return result;
     }
-
-    public Genre toModel(GenreDto dto) {
-        Genre result = new Genre();
-        result.setId(dto.getId());
-        result.setName(dto.getName());
-        return result;
-    }
 }

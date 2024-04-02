@@ -13,11 +13,4 @@ public class CommentMapper {
         result.setText(comment.getText());
         return result;
     }
-
-    public Comment toModel(CommentDto dto) {
-        Comment result = new Comment();
-        result.setId(dto.getId());
-        result.setText(dto.getText());
-        return result;
-    }
 }

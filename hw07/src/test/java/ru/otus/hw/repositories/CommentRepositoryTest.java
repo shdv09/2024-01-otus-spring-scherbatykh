@@ -1,14 +1,16 @@
 package ru.otus.hw.repositories;
 
+import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Comment;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,8 +27,7 @@ class CommentRepositoryTest {
     @DisplayName("должен загружать комментарий по id")
     @Test
     void shouldReturnCorrectCommentById() {
-        Book book = em.find(Book.class, 1L);
-        Comment expectedComment = book.getComments().get(0);
+        Comment expectedComment = em.find(Comment.class, 1L);
 
         var actualComment = commentRepository.findById(expectedComment.getId());
 
@@ -39,10 +40,12 @@ class CommentRepositoryTest {
     @DisplayName("должен загружать список комментариев для книги")
     @Test
     void shouldReturnCorrectCommentsListForBook() {
-        Book book = em.find(Book.class, 1L);
-        List<Comment> expectedComments = book.getComments();
+        TypedQuery<Comment> query = em.getEntityManager()
+                .createQuery("select c from Comment c where c.book.id = ?1", Comment.class);
+        query.setParameter(1, 1L);
+        List<Comment> expectedComments = query.getResultList();
 
-        List<Comment> actualComments = commentRepository.findByBookId(book.getId());
+        List<Comment> actualComments = commentRepository.findByBookId(1L);
 
         assertThat(actualComments).usingRecursiveComparison().isEqualTo(expectedComments);
     }
@@ -58,5 +61,25 @@ class CommentRepositoryTest {
         assertThat(actualComment)
                 .usingRecursiveComparison()
                 .isEqualTo(comment);
+    }
+
+    @DisplayName("должен удалять комментарии для книги")
+    @Test
+    void shouldDeleteCommentsForBook() {
+        List<Comment> commentsBefore = getComments();
+
+        commentRepository.deleteByBookId(1L);
+
+        List<Comment> commentsAfter = getComments();
+        assertThat(commentsBefore).hasSize(3);
+        assertThat(commentsAfter).isEmpty();
+    }
+
+    private List<Comment> getComments() {
+        List<Comment> result = new LinkedList<>();
+        for (int i = 1; i < 4; i++) {
+            Optional.ofNullable(em.find(Comment.class, i)).ifPresent(result::add);
+        }
+        return result;
     }
 }
