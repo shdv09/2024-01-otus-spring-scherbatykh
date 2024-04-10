@@ -3,22 +3,19 @@ package ru.otus.hw.repositories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import ru.otus.hw.models.Author;
-import ru.otus.hw.models.Book;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("Репозиторий на основе SpringDataJpa для работы с авторами ")
-@DataJpaTest
-class AuthorRepositoryTest {
+@DisplayName("Репозиторий на основе SpringDataMongoDb для работы с авторами ")
+class AuthorRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
-    private TestEntityManager em;
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private AuthorRepository authorRepository;
@@ -26,8 +23,7 @@ class AuthorRepositoryTest {
     @DisplayName("должен загружать автора по id")
     @Test
     void shouldReturnCorrectAuthorById() {
-        Book book = em.find(Book.class, 1L);
-        Author expectedAuthor = book.getAuthor();
+        Author expectedAuthor = mongoTemplate.findAll(Author.class).get(0);
 
         var actualAuthor = authorRepository.findById(expectedAuthor.getId());
 

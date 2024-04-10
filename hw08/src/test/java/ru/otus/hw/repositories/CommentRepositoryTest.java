@@ -3,22 +3,22 @@ package ru.otus.hw.repositories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.test.annotation.DirtiesContext;
+import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Comment;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Репозиторий на основе SpringDataJpa для работы с комментариями ")
-@DataJpaTest
-class CommentRepositoryTest {
+@DisplayName("Репозиторий на основе SpringDataMongoDb для работы с комментариями ")
+class CommentRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
-    private TestEntityManager em;
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -26,7 +26,7 @@ class CommentRepositoryTest {
     @DisplayName("должен загружать комментарий по id")
     @Test
     void shouldReturnCorrectCommentById() {
-        Comment expectedComment = em.find(Comment.class, 1L);
+        Comment expectedComment = mongoTemplate.findAll(Comment.class).get(0);
 
         var actualComment = commentRepository.findById(expectedComment.getId());
 
@@ -36,23 +36,24 @@ class CommentRepositoryTest {
                 .isEqualTo(expectedComment);
     }
 
-/*    @DisplayName("должен загружать список комментариев для книги")
+    @DisplayName("должен загружать список комментариев для книги")
     @Test
     void shouldReturnCorrectCommentsListForBook() {
-        TypedQuery<Comment> query = em.getEntityManager()
-                .createQuery("select c from Comment c where c.book.id = ?1", Comment.class);
-        query.setParameter(1, 1L);
-        List<Comment> expectedComments = query.getResultList();
+        Book book = mongoTemplate.findAll(Book.class).get(0);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("book").is(book));
+        List<Comment> expectedComments = mongoTemplate.find(query, Comment.class);
 
-        List<Comment> actualComments = commentRepository.findByBookId(1L);
+        List<Comment> actualComments = commentRepository.findByBookId(book.getId());
 
         assertThat(actualComments).usingRecursiveComparison().isEqualTo(expectedComments);
-    }*/
+    }
 
     @DisplayName("должен изменять текст комментария")
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void shouldUpdateCommentById() {
-        Comment comment = em.find(Comment.class, 1L);
+        Comment comment = mongoTemplate.findAll(Comment.class).get(0);
         comment.setText("updated text");
 
         var actualComment = commentRepository.save(comment);
@@ -64,21 +65,17 @@ class CommentRepositoryTest {
 
     @DisplayName("должен удалять комментарии для книги")
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void shouldDeleteCommentsForBook() {
-        List<Comment> commentsBefore = getComments();
+        Book book = mongoTemplate.findAll(Book.class).get(0);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("book").is(book));
+        List<Comment> commentsBefore = mongoTemplate.find(query, Comment.class);
 
-        commentRepository.deleteByBookId("1L");
+        commentRepository.deleteByBookId(book.getId());
 
-        List<Comment> commentsAfter = getComments();
+        List<Comment> commentsAfter = mongoTemplate.find(query, Comment.class);
         assertThat(commentsBefore).hasSize(3);
         assertThat(commentsAfter).isEmpty();
-    }
-
-    private List<Comment> getComments() {
-        List<Comment> result = new LinkedList<>();
-        for (int i = 1; i < 4; i++) {
-            Optional.ofNullable(em.find(Comment.class, i)).ifPresent(result::add);
-        }
-        return result;
     }
 }

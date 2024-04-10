@@ -3,22 +3,21 @@ package ru.otus.hw.repositories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import ru.otus.hw.models.Genre;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("Репозиторий на основе SpringDataJpa для работы с жанрами ")
-@DataJpaTest
-class GenreRepositoryTest {
+@DisplayName("Репозиторий на основе SpringDataMongoDb для работы с жанрами ")
+class GenreRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
-    private TestEntityManager em;
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private GenreRepository genreRepository;
@@ -26,12 +25,12 @@ class GenreRepositoryTest {
     @DisplayName("должен загружать жанры по списку id")
     @Test
     void shouldReturnCorrectGenresByIds() {
-        Genre genre1 = em.find(Genre.class, 1L);
-        Genre genre2 = em.find(Genre.class, 2L);
-        Genre genre3 = em.find(Genre.class, 3L);
-        List<Genre> expectedGenres = List.of(genre1, genre2, genre3);
+        List<Genre> expectedGenres = mongoTemplate.findAll(Genre.class);
+        Set<String> genreIds = expectedGenres.stream()
+                .map(Genre::getId)
+                .collect(Collectors.toSet());
 
-        List<Genre> actualGenres = genreRepository.findAllById(Set.of("1L", "2L", "3L"));
+        List<Genre> actualGenres = genreRepository.findAllById(genreIds);
 
         assertThat(actualGenres)
                 .usingRecursiveComparison()

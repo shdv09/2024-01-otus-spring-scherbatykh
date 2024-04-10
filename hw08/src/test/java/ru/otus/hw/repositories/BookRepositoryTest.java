@@ -3,24 +3,22 @@ package ru.otus.hw.repositories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Репозиторий на основе SpringDataJpa для работы с книгами ")
-@DataJpaTest
-class BookRepositoryTest {
+class BookRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
-    private TestEntityManager em;
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private BookRepository bookRepository;
@@ -28,10 +26,11 @@ class BookRepositoryTest {
     @DisplayName("должен загружать книгу по id")
     @Test
     void shouldReturnCorrectBookById() {
-        Book expectedBook = em.find(Book.class, 1);
+        Book expectedBook = mongoTemplate.findAll(Book.class).get(0);
         var actualBook = bookRepository.findById(expectedBook.getId());
         assertThat(actualBook).isPresent()
                 .get()
+                .usingRecursiveComparison()
                 .isEqualTo(expectedBook);
     }
 
@@ -46,12 +45,12 @@ class BookRepositoryTest {
 
     @DisplayName("должен сохранять новую книгу")
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void shouldSaveNewBook() {
-        Author author = em.find(Author.class, 2);
-        Genre genre4 = em.find(Genre.class, 4);
-        Genre genre5 = em.find(Genre.class, 5);
+        Author author = mongoTemplate.findAll(Author.class).get(0);
+        List<Genre> genres = mongoTemplate.findAll(Genre.class).subList(0, 1);
         var expectedBook =
-                new Book("0L", "Title4", author, List.of(genre4, genre5));
+                new Book(null, "newBook", author, genres);
 
         var returnedBook = bookRepository.save(expectedBook);
         assertThat(returnedBook).isNotNull()
@@ -61,40 +60,47 @@ class BookRepositoryTest {
         assertThat(bookRepository.findById(returnedBook.getId()))
                 .isPresent()
                 .get()
+                .usingRecursiveComparison()
                 .isEqualTo(returnedBook);
     }
 
     @DisplayName("должен сохранять измененную книгу")
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void shouldSaveUpdatedBook() {
-        Author author = em.find(Author.class, 2);
-        Genre genre4 = em.find(Genre.class, 4);
-        Genre genre5 = em.find(Genre.class, 5);
-        var expectedBook =
-                new Book("1L", "BookTitle_10500", author, List.of(genre4, genre5));
+        Author author = mongoTemplate.findAll(Author.class).get(2);
+        List<Genre> genres = mongoTemplate.findAll(Genre.class).subList(4, 5);
 
-        assertThat(bookRepository.findById(expectedBook.getId()))
+        Book changedBook = mongoTemplate.findAll(Book.class).get(0);
+        changedBook.setTitle("newBook");
+        changedBook.setAuthor(author);
+        changedBook.setGenres(genres);
+
+        assertThat(bookRepository.findById(changedBook.getId()))
                 .isPresent()
                 .get()
-                .isNotEqualTo(expectedBook);
+                .isNotEqualTo(changedBook);
 
-        var returnedBook = bookRepository.save(expectedBook);
+        var returnedBook = bookRepository.save(changedBook);
         assertThat(returnedBook).isNotNull()
                 .matches(book -> book.getId() != null)
                 .usingRecursiveComparison()
-                .ignoringExpectedNullFields().isEqualTo(expectedBook);
+                .ignoringExpectedNullFields().isEqualTo(changedBook);
 
         assertThat(bookRepository.findById(returnedBook.getId()))
                 .isPresent()
                 .get()
+                .usingRecursiveComparison()
                 .isEqualTo(returnedBook);
     }
 
     @DisplayName("должен удалять книгу по id ")
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void shouldDeleteBook() {
-        assertThat(bookRepository.findById("1L")).isPresent();
-        bookRepository.deleteById("1L");
-        assertThat(bookRepository.findById("1L")).isEmpty();
+        Book book = mongoTemplate.findAll(Book.class).get(0);
+        assertThat(bookRepository.findById(book.getId())).isPresent();
+        bookRepository.deleteById(book.getId());
+        assertThat(bookRepository.findById(book.getId())).isEmpty();
     }
 }
