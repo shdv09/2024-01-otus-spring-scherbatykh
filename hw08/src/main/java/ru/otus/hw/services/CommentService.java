@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentService {
-    List<CommentDto> create(String bookId, String commentText);
+    CommentDto create(String bookId, String commentText);
 
     Optional<CommentDto> findById(String id);
 

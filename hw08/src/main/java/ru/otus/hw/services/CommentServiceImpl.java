@@ -11,7 +11,6 @@ import ru.otus.hw.models.Comment;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.CommentRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -25,17 +24,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public List<CommentDto> create(String bookId, String commentText) {
+    public CommentDto create(String bookId, String commentText) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book with id = %s not found".formatted(bookId)));
         Comment comment = new Comment();
         comment.setText(commentText);
         comment.setBook(book);
-        commentRepository.save(comment);
-        List<Comment> comments = commentRepository.findByBookId(book.getId());
-        return comments.stream()
-                .map(commentMapper::toDto)
-                .toList();
+        return commentMapper.toDto(commentRepository.save(comment));
     }
 
     @Transactional(readOnly = true)
@@ -48,7 +43,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto update(String id, String text) {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Comment with id = %d not found".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("Comment with id = %s not found".formatted(id)));
         comment.setText(text);
         return commentMapper.toDto(commentRepository.save(comment));
     }

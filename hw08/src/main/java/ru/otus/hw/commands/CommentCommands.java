@@ -21,11 +21,8 @@ public class CommentCommands {
     //ac 1 goodBook
     @ShellMethod(value = "Add comment", key = "ac")
     String addComment(String bookId, String commentText) {
-        List<CommentDto> comments = commentService.create(bookId, commentText);
-        return comments.stream()
-                .map(commentConverter::commentToString)
-                .map("{%s}"::formatted)
-                .collect(Collectors.joining(", "));
+        CommentDto comment = commentService.create(bookId, commentText);
+        return commentConverter.commentToString(comment);
     }
 
     //cbid 1
@@ -33,7 +30,7 @@ public class CommentCommands {
     String getComment(String id) {
         return commentService.findById(id)
                 .map(commentConverter::commentToString)
-                .orElseThrow(() -> new EntityNotFoundException("Comment with id = %d not found".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("Comment with id = %s not found".formatted(id)));
     }
 
     //cupd 1 likeIt

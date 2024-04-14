@@ -10,6 +10,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Comment;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,7 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
         assertThat(actualComment).isPresent()
                 .get()
                 .usingRecursiveComparison()
+                .withComparatorForType(Comparator.comparing(Book::getId), Book.class)
                 .isEqualTo(expectedComment);
     }
 
@@ -46,7 +48,9 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
 
         List<Comment> actualComments = commentRepository.findByBookId(book.getId());
 
-        assertThat(actualComments).usingRecursiveComparison().isEqualTo(expectedComments);
+        assertThat(actualComments).usingRecursiveComparison()
+                .withComparatorForType(Comparator.comparing(Book::getId), Book.class)
+                .isEqualTo(expectedComments);
     }
 
     @DisplayName("должен изменять текст комментария")
