@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.dto.mappers.GenreMapper;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.repositories.GenreRepository;
 
 import java.util.List;
@@ -22,5 +23,12 @@ public class GenreServiceImpl implements GenreService {
         return genreRepository.findAll().stream()
                 .map(genreMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public GenreDto findById(long genreId) {
+        return genreRepository.findById(genreId)
+                .map(genreMapper::toDto)
+                .orElseThrow(() -> new EntityNotFoundException("Genre with id = %s not found".formatted(genreId)));
     }
 }

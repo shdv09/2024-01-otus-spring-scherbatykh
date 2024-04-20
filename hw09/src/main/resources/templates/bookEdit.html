@@ -60,8 +60,22 @@
     </div>
 
     <div class="row">
+        <label for="author">Author</label>
+        <select id="author" th:field="*{author.id}">
+            <option th:each="author : ${allAuthors}" th:value="${author.id}" th:text="${author.fullName}">Select author</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <label for="genres">Genres</label>
+        <select id="genres" th:field="*{genres}" multiple="multiple">
+            <option th:each="genre : ${allGenres}" th:value="${genre.id}" th:text="${genre.name}">Select genres</option>
+        </select>
+    </div>
+
+    <div class="row">
         <button type="submit">Save</button>
-        <a href="list.html" th:href="@{/}"><button type="button">Cancel</button></a>
+        <a href="booksList.html" th:href="@{/}"><button type="button">Cancel</button></a>
     </div>
 </form>
 
