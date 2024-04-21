@@ -1,5 +1,7 @@
 package ru.otus.hw.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +15,8 @@ import java.util.List;
 public class BookDto {
     private long id;
 
+    @NotBlank(message = "Title should not be blank")
+    @Size(min = 2, max = 20, message = "Title should have expected size")
     private String title;
 
     private AuthorDto author;

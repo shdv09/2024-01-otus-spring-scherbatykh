@@ -21,6 +21,12 @@
             margin-top: 10px;
         }
 
+        .comments {
+            margin-top: 10px;
+            width: 300px;
+            border: 1px solid gray;
+        }
+
         h3 {
             background-image: url("../static/spring.png");
             background-repeat: no-repeat;
@@ -72,6 +78,18 @@
             <option th:each="genre : ${allGenres}" th:value="${genre.id}" th:text="${genre.name}">Select genres</option>
         </select>
     </div>
+
+    <div class="comments">
+        <label for="comments">Comments:</label>
+        <table style="margin-left: 100px" id="comments">
+            <tbody>
+                <tr th:each="comment : *{comments}">
+                    <td style="font-size: small" th:text="${comment.text}">comment</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <a th:href="@{/addComment(id=${book.id})}" href="addComment.html">Add Comment</a>
 
     <div class="row">
         <button type="submit">Save</button>
