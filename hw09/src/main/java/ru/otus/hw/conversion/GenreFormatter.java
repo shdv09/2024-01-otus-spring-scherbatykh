@@ -1,32 +1,23 @@
 package ru.otus.hw.conversion;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.Formatter;
 import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.services.GenreService;
 
 import java.util.Locale;
 
-
+@RequiredArgsConstructor
 public class GenreFormatter implements Formatter<GenreDto> {
 
-    @Autowired
-    private GenreService genreService;
-
-
-    public GenreFormatter() {
-        super();
-    }
+    private final GenreService genreService;
 
     public GenreDto parse(final String text, final Locale locale) {
         final long genreId = Long.parseLong(text);
-        GenreDto genreDto = genreService.findById(genreId);
-        return genreDto;
+        return genreService.findById(genreId);
     }
-
 
     public String print(final GenreDto object, final Locale locale) {
         return (object != null ? object.toString() : "");
     }
-
 }

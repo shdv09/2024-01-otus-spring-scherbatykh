@@ -7,32 +7,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.otus.hw.controllers.BookController;
+import ru.otus.hw.controllers.CommentController;
 import ru.otus.hw.dto.AuthorDto;
 import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.dto.CommentDto;
 import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.services.AuthorService;
 import ru.otus.hw.services.BookService;
+import ru.otus.hw.services.CommentService;
 import ru.otus.hw.services.GenreService;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(BookController.class)
-public class BookControllerTest {
+@WebMvcTest(CommentController.class)
+public class CommentControllerTest {
     @Autowired
     private MockMvc mvc;
 
@@ -40,6 +41,10 @@ public class BookControllerTest {
 
     @MockBean
     private BookService bookService;
+
+    @MockBean
+    private CommentService commentService;
+
 
     @MockBean
     private AuthorService authorService;
@@ -62,79 +67,30 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldReturnCorrectBookList() throws Exception {
-        given(bookService.findAll()).willReturn(List.of(bookDto));
-
-        mvc.perform(get("/"))
-                .andExpect(status().isOk()).andDo(print())
-                .andExpect(view().name("booksList"));
-
-        verify(bookService).findAll();
-    }
-
-    @Test
-    void shouldReturnCorrectBookEditPage() throws Exception {
+    void shouldReturnCorrectAddCommentPage() throws Exception {
         given(bookService.findById(3L)).willReturn(Optional.of(bookDto));
 
-        mvc.perform(get("/edit?id=3"))
+        mvc.perform(get("/addComment?id=3"))
                 .andExpect(status().isOk()).andDo(print())
-                .andExpect(view().name("bookEdit"));
+                .andExpect(view().name("addComment"));
 
         verify(bookService).findById(3L);
     }
 
     @Test
-    void shouldSaveNewBook() throws Exception {
-        bookDto.setId(0L);
-        given(bookService.create(anyString(), anyLong(), any())).willReturn(bookDto);
-
-        mvc.perform(post("/edit")
-                        .flashAttr("book", bookDto))
-                .andExpect(status().isFound()).andDo(print())
-                .andExpect(view().name("redirect:/"));
-
-        verify(bookService).create(anyString(), anyLong(), any());
-    }
-
-    @Test
-    void shouldEditExistedBook() throws Exception {
-        given(bookService.update(anyLong(), anyString(), anyLong(), any())).willReturn(bookDto);
-
-        mvc.perform(post("/edit")
-                        .flashAttr("book", bookDto))
-                .andExpect(status().isFound()).andDo(print())
-                .andExpect(view().name("redirect:/"));
-
-        verify(bookService).update(anyLong(), anyString(), anyLong(), any());
-    }
-
-    @Test
-    void shouldReturnCorrectBookCreatePage() throws Exception {
-        mvc.perform(get("/create"))
-                .andExpect(status().isOk()).andDo(print())
-                .andExpect(view().name("bookEdit"));
-    }
-
-    @Test
-    void shouldReturnCorrectBookDeletePage() throws Exception {
+    void shouldSaveNewComment() throws Exception {
         given(bookService.findById(3L)).willReturn(Optional.of(bookDto));
+        given(commentService.create(anyLong(), anyString())).willReturn(List.of(new CommentDto(1L, "text")));
 
-        mvc.perform(get("/delete?id=3"))
+        mvc.perform(post("/addComment")
+                        .flashAttr("book", bookDto)
+                        .flashAttr("comment", new CommentDto(0, "text")))
                 .andExpect(status().isOk()).andDo(print())
-                .andExpect(view().name("bookDelete"));
+                .andExpect(model().attributeExists("book"))
+                .andExpect(model().attribute("book", bookDto))
+                .andExpect(view().name("bookEdit"));
 
         verify(bookService).findById(3L);
-    }
-
-    @Test
-    void shouldDeleteBook() throws Exception {
-        doNothing().when(bookService).deleteById(3L);
-
-        mvc.perform(post("/delete")
-                        .flashAttr("book", bookDto))
-                .andExpect(status().isFound()).andDo(print())
-                .andExpect(view().name("redirect:/"));
-
-        verify(bookService).deleteById(3L);
+        verify(commentService).create(anyLong(), anyString());
     }
 }
