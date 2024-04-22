@@ -80,7 +80,7 @@ public class CommentControllerTest {
     @Test
     void shouldSaveNewComment() throws Exception {
         given(bookService.findById(3L)).willReturn(Optional.of(bookDto));
-        given(commentService.create(anyLong(), anyString())).willReturn(List.of(new CommentDto(1L, "text")));
+        given(commentService.create(anyLong(), anyString())).willReturn(new CommentDto(1L, "text"));
 
         mvc.perform(post("/addComment")
                         .flashAttr("book", bookDto)
