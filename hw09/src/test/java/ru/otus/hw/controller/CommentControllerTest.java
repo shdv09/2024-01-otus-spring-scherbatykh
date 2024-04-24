@@ -8,17 +8,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.controllers.CommentController;
-import ru.otus.hw.dto.AuthorDto;
-import ru.otus.hw.dto.BookDto;
-import ru.otus.hw.dto.CommentDto;
-import ru.otus.hw.dto.GenreDto;
+import ru.otus.hw.dto.request.CommentCreateDto;
+import ru.otus.hw.dto.response.AuthorDto;
+import ru.otus.hw.dto.response.BookDto;
+import ru.otus.hw.dto.response.CommentDto;
+import ru.otus.hw.dto.response.GenreDto;
 import ru.otus.hw.services.AuthorService;
 import ru.otus.hw.services.BookService;
 import ru.otus.hw.services.CommentService;
 import ru.otus.hw.services.GenreService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -61,14 +61,12 @@ public class CommentControllerTest {
 
     @AfterEach
     void after() {
-        verify(authorService).findAll();
-        verify(genreService).findAll();
         verifyNoMoreInteractions(bookService, authorService, genreService);
     }
 
     @Test
     void shouldReturnCorrectAddCommentPage() throws Exception {
-        given(bookService.findById(3L)).willReturn(Optional.of(bookDto));
+        given(bookService.findById(3L)).willReturn(bookDto);
 
         mvc.perform(get("/addComment?id=3"))
                 .andExpect(status().isOk()).andDo(print())
@@ -79,12 +77,12 @@ public class CommentControllerTest {
 
     @Test
     void shouldSaveNewComment() throws Exception {
-        given(bookService.findById(3L)).willReturn(Optional.of(bookDto));
+        given(bookService.findById(3L)).willReturn(bookDto);
         given(commentService.create(anyLong(), anyString())).willReturn(new CommentDto(1L, "text"));
 
         mvc.perform(post("/addComment")
                         .flashAttr("book", bookDto)
-                        .flashAttr("comment", new CommentDto(0, "text")))
+                        .flashAttr("comment", new CommentCreateDto(0, "text")))
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(model().attributeExists("book"))
                 .andExpect(model().attribute("book", bookDto))
@@ -92,5 +90,7 @@ public class CommentControllerTest {
 
         verify(bookService).findById(3L);
         verify(commentService).create(anyLong(), anyString());
+        verify(authorService).findAll();
+        verify(genreService).findAll();
     }
 }

@@ -7,19 +7,16 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import ru.otus.hw.dto.AuthorDto;
-import ru.otus.hw.dto.BookDto;
-import ru.otus.hw.dto.GenreDto;
-import ru.otus.hw.exceptions.EntityNotFoundException;
+import ru.otus.hw.dto.request.BookCreateDto;
+import ru.otus.hw.dto.request.BookUpdateDto;
+import ru.otus.hw.dto.response.BookDto;
 import ru.otus.hw.services.AuthorService;
 import ru.otus.hw.services.BookService;
 import ru.otus.hw.services.GenreService;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Controller
@@ -30,16 +27,6 @@ public class BookController {
 
     private final GenreService genreService;
 
-    @ModelAttribute("allAuthors")
-    public List<AuthorDto> populateAuthors() {
-        return authorService.findAll();
-    }
-
-    @ModelAttribute("allGenres")
-    public List<GenreDto> populateGenres() {
-        return genreService.findAll();
-    }
-
     @GetMapping("/")
     public String listPage(Model model) {
         List<BookDto> books = bookService.findAll();
@@ -47,50 +34,54 @@ public class BookController {
         return "booksList";
     }
 
-    @GetMapping("/edit")
-    public String editPage(@RequestParam(name = "id") long id, Model model) {
-        BookDto book = bookService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Book with id = %d not found".formatted(id)));
+    @GetMapping("/book/{id}")
+    public String editPage(@PathVariable(name = "id") long id, Model model) {
+        BookDto book = bookService.findById(id);
         model.addAttribute("book", book);
+        addDictToModel(model);
         return "bookEdit";
     }
 
-    @PostMapping("/edit")
-    public String saveBook(@Valid @ModelAttribute("book") BookDto book, BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
-            return "bookEdit";
-        }
-        Set<Long> genreIds = book.getGenres().stream()
-                .map(GenreDto::getId)
-                .collect(Collectors.toSet());
-        if (book.getId() == 0) {
-            bookService.create(book.getTitle(), book.getAuthor().getId(), genreIds);
-        } else {
-            bookService.update(book.getId(), book.getTitle(), book.getAuthor().getId(), genreIds);
-        }
-        return "redirect:/";
-    }
-
-    @GetMapping("/delete")
-    public String deletePage(@RequestParam(name = "id") long id, Model model) {
-        BookDto book = bookService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Book with id = %d not found".formatted(id)));
-        model.addAttribute("book", book);
-        return "bookDelete";
-    }
-
-    @PostMapping("/delete")
-    public String deleteBook(@ModelAttribute("book") BookDto book, BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
-            return "bookDelete";
-        }
-        bookService.deleteById(book.getId());
-        return "redirect:/";
-    }
-
-    @GetMapping("/create")
+    @GetMapping("/book")
     public String createPage(Model model) {
         model.addAttribute("book", new BookDto());
+        addDictToModel(model);
         return "bookEdit";
+    }
+
+    @PostMapping("/book")
+    public String addBook(@Valid @ModelAttribute("book") BookCreateDto book,
+                          BindingResult bindingResult,
+                          Model model) {
+        if (bindingResult.hasErrors()) {
+            addDictToModel(model);
+            return "bookEdit";
+        }
+        bookService.create(book);
+        return "redirect:/";
+    }
+
+    @PostMapping("/book/{id}")
+    public String editBook(@PathVariable(name = "id") long id,
+                           @Valid @ModelAttribute("book") BookUpdateDto book,
+                           BindingResult bindingResult,
+                           Model model) {
+        if (bindingResult.hasErrors()) {
+            addDictToModel(model);
+            return "bookEdit";
+        }
+        bookService.update(book);
+        return "redirect:/";
+    }
+
+    @PostMapping("book/{id}/delete")
+    public String deleteBook(@PathVariable(name = "id") long id) {
+        bookService.deleteById(id);
+        return "redirect:/";
+    }
+
+    private void addDictToModel(Model model) {
+        model.addAttribute("allAuthors", authorService.findAll());
+        model.addAttribute("allGenres", genreService.findAll());
     }
 }

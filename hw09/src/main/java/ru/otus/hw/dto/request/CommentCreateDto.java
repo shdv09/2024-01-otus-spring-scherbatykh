@@ -1,4 +1,4 @@
-package ru.otus.hw.dto;
+package ru.otus.hw.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CommentDto {
+public class CommentCreateDto {
 
     private long id;
 

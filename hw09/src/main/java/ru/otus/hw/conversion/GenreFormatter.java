@@ -2,7 +2,7 @@ package ru.otus.hw.conversion;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.Formatter;
-import ru.otus.hw.dto.GenreDto;
+import ru.otus.hw.dto.response.GenreDto;
 import ru.otus.hw.services.GenreService;
 
 import java.util.Locale;
@@ -17,7 +17,7 @@ public class GenreFormatter implements Formatter<GenreDto> {
         return genreService.findById(genreId);
     }
 
-    public String print(final GenreDto object, final Locale locale) {
-        return (object != null ? object.toString() : "");
+    public String print(final GenreDto genre, final Locale locale) {
+        return String.valueOf(genre.getId());
     }
 }

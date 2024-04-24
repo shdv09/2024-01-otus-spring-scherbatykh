@@ -9,17 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.otus.hw.dto.AuthorDto;
-import ru.otus.hw.dto.BookDto;
-import ru.otus.hw.dto.CommentDto;
-import ru.otus.hw.dto.GenreDto;
-import ru.otus.hw.exceptions.EntityNotFoundException;
+import ru.otus.hw.dto.request.CommentCreateDto;
+import ru.otus.hw.dto.response.BookDto;
+import ru.otus.hw.dto.response.CommentDto;
 import ru.otus.hw.services.AuthorService;
 import ru.otus.hw.services.BookService;
 import ru.otus.hw.services.CommentService;
 import ru.otus.hw.services.GenreService;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
@@ -33,20 +29,9 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @ModelAttribute("allAuthors")
-    public List<AuthorDto> populateAuthors() {
-        return authorService.findAll();
-    }
-
-    @ModelAttribute("allGenres")
-    public List<GenreDto> populateGenres() {
-        return genreService.findAll();
-    }
-
     @GetMapping("/addComment")
     public String addCommentPage(@RequestParam(name = "id") long id, Model model) {
-        BookDto book = bookService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Book with id = %d not found".formatted(id)));
+        BookDto book = bookService.findById(id);
         model.addAttribute("book", book);
         model.addAttribute("comment", new CommentDto());
         return "addComment";
@@ -54,15 +39,16 @@ public class CommentController {
 
     @PostMapping("/addComment")
     public String addComment(@ModelAttribute("book") BookDto book,
-                             @Valid @ModelAttribute("comment") CommentDto comment,
+                             @Valid @ModelAttribute("comment") CommentCreateDto comment,
                              BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             return "addComment";
         }
         commentService.create(book.getId(), comment.getText());
-        BookDto bookDto = bookService.findById(book.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Book with id = %d not found".formatted(book.getId())));
+        BookDto bookDto = bookService.findById(book.getId());
         model.addAttribute("book", bookDto);
+        model.addAttribute("allAuthors", authorService.findAll());
+        model.addAttribute("allGenres", genreService.findAll());
         return "bookEdit";
     }
 }

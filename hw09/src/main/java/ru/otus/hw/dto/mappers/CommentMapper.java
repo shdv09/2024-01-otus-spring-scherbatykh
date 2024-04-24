@@ -1,7 +1,7 @@
 package ru.otus.hw.dto.mappers;
 
 import org.springframework.stereotype.Component;
-import ru.otus.hw.dto.CommentDto;
+import ru.otus.hw.dto.response.CommentDto;
 import ru.otus.hw.models.Comment;
 
 @Component

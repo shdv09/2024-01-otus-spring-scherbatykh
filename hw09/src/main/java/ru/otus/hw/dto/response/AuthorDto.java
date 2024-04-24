@@ -1,4 +1,4 @@
-package ru.otus.hw.dto;
+package ru.otus.hw.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

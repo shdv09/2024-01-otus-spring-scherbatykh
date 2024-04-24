@@ -63,13 +63,12 @@
         <td th:text="${book.author.fullName}">Joanne Rowlinq</td>
         <td th:text="${#strings.listJoin(book.genres.![name], ', ')}">Fantasy</td>
         <td>
-            <a th:href="@{/edit(id=${book.id})}" href="bookEdit.html">Edit</a>
-            <a th:href="@{/delete(id=${book.id})}" href="bookDelete.html">Delete</a>
+            <a th:href="@{/book/{id}(id=${book.id})}" href="bookEdit.html">Edit</a>
         </td>
     </tr>
     </tbody>
 </table>
 <div style="height: 10px">&nbsp;</div>
-<a th:href="@{/create}" href="bookEdit.html">New book</a>
+<a th:href="@{/book}" href="bookEdit.html">New book</a>
 </body>
 </html>
