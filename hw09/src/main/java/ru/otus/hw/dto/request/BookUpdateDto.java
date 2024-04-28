@@ -8,12 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.otus.hw.dto.response.AuthorDto;
-import ru.otus.hw.dto.response.CommentDto;
-import ru.otus.hw.dto.response.GenreDto;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -28,10 +23,9 @@ public class BookUpdateDto {
     private String title;
 
     @NotNull(message = "Author should not be null")
-    private AuthorDto author;
+    private Long author;
 
     @NotEmpty(message = "Genres should not be empty")
-    private Set<GenreDto> genres;
-
-    private List<CommentDto> comments = new ArrayList<>();
+    @NotNull(message = "Genres should not be null")
+    private Set<Long> genres;
 }

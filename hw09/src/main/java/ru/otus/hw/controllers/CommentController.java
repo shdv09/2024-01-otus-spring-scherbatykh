@@ -47,6 +47,7 @@ public class CommentController {
         commentService.create(book.getId(), comment.getText());
         BookDto bookDto = bookService.findById(book.getId());
         model.addAttribute("book", bookDto);
+        model.addAttribute("comments", bookDto.getComments());
         model.addAttribute("allAuthors", authorService.findAll());
         model.addAttribute("allGenres", genreService.findAll());
         return "bookEdit";

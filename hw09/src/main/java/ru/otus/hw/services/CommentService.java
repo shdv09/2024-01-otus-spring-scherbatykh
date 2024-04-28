@@ -6,6 +6,4 @@ public interface CommentService {
     CommentDto create(long bookId, String commentText);
 
     CommentDto findById(long id);
-
-    CommentDto update(long id, String text);
 }

@@ -38,6 +38,7 @@ public class BookController {
     public String editPage(@PathVariable(name = "id") long id, Model model) {
         BookDto book = bookService.findById(id);
         model.addAttribute("book", book);
+        model.addAttribute("comments", book.getComments());
         addDictToModel(model);
         return "bookEdit";
     }

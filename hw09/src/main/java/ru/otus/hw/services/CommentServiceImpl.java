@@ -38,13 +38,4 @@ public class CommentServiceImpl implements CommentService {
                 .map(commentMapper::toDto)
                 .orElseThrow(() -> new NotFoundException("Comment with id = %d not found".formatted(id)));
     }
-
-    @Transactional
-    @Override
-    public CommentDto update(long id, String text) {
-        Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Comment with id = %d not found".formatted(id)));
-        comment.setText(text);
-        return commentMapper.toDto(commentRepository.save(comment));
-    }
 }

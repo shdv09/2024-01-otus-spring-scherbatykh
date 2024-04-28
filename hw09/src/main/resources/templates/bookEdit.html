@@ -86,7 +86,7 @@
         <label for="comments">Comments:</label>
         <table style="margin-left: 100px" id="comments">
             <tbody>
-            <tr th:each="comment : *{comments}">
+            <tr th:each="comment : ${comments}">
                 <td style="font-size: small" th:text="${comment.text}">comment</td>
             </tr>
             </tbody>
