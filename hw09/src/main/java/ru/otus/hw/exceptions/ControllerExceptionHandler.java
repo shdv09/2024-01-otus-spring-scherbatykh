@@ -12,6 +12,12 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     void notFoundException(NotFoundException e) {
-        log.error("Error: {}", e.getMessage());
+        log.error("Object not found: {}", e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    void commonHandler(Exception e) {
+        log.error("Server error: {}", e.getMessage(), e);
     }
 }

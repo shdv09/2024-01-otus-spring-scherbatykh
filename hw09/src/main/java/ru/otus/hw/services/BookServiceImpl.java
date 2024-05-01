@@ -9,13 +9,16 @@ import ru.otus.hw.dto.response.BookDto;
 import ru.otus.hw.dto.mappers.BookMapper;
 import ru.otus.hw.dto.mappers.CommentMapper;
 import ru.otus.hw.exceptions.NotFoundException;
+import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
+import ru.otus.hw.models.Genre;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.repositories.GenreRepository;
 
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -52,7 +55,9 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto create(BookCreateDto dto) {
-        Book book = bookMapper.fromDto(dto);
+        var author = findAuthor(dto.getAuthor());
+        var genres = findGenres(dto.getGenres());
+        Book book = bookMapper.fromDto(dto, author, genres);
         return bookMapper.toDto(bookRepository.save(book));
     }
 
@@ -62,7 +67,9 @@ public class BookServiceImpl implements BookService {
     public BookDto update(BookUpdateDto dto) {
         bookRepository.findById(dto.getId())
                 .orElseThrow(() -> new NotFoundException("Book with id %d not found".formatted(dto.getId())));
-        Book book = bookMapper.fromDto(dto);
+        var author = findAuthor(dto.getAuthor());
+        var genres = findGenres(dto.getGenres());
+        Book book = bookMapper.fromDto(dto, author, genres);
         return bookMapper.toDto(bookRepository.save(book));
     }
 
@@ -78,5 +85,18 @@ public class BookServiceImpl implements BookService {
                 .map(commentMapper::toDto)
                 .toList());
         return dto;
+    }
+
+    private Author findAuthor(long id) {
+        return authorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Author with id %d not found".formatted(id)));
+    }
+
+    private List<Genre> findGenres(Set<Long> genreIds) {
+        var genres = genreRepository.findAllById(genreIds);
+        if (genres.size() != genreIds.size()) {
+            throw new NotFoundException("Not all genres found from list %s".formatted(genreIds));
+        }
+        return genres;
     }
 }

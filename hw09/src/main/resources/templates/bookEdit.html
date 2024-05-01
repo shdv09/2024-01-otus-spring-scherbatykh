@@ -77,7 +77,7 @@
     <div class="row">
         <label for="genres">Genres</label>
         <select id="genres" th:field="*{genres}" multiple="multiple">
-            <option th:each="genre : ${allGenres}" th:value="${{genre}}" th:text="${genre.name}">Select genres</option>
+            <option th:each="genre : ${allGenres}" th:value="${{genre.id}}" th:text="${genre.name}">Select genres</option>
         </select>
         <div class="errors" th:if="${#fields.hasErrors('genres')}" th:errors="*{genres}">Wrong book genres error</div>
     </div>

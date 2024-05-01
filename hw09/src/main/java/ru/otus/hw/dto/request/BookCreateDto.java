@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.otus.hw.validation.NonNullElements;
+
 import java.util.Set;
 
 @AllArgsConstructor
@@ -23,6 +25,6 @@ public class BookCreateDto {
     private Long author;
 
     @NotEmpty(message = "Genres should not be empty")
-    @NotNull(message = "Genres should not be null")
+    @NonNullElements
     private Set<Long> genres;
 }
