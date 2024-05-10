@@ -41,12 +41,66 @@
         }
 
     </style>
+
+    <script>
+        function getBooks() {
+            fetch("api/book", {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(rawResponse => rawResponse.json())
+                .then(json => {
+                    console.log(json)
+                    const table = document.getElementById("books")
+                    const tableBody = table.querySelector("tbody")
+                    tableBody.innerHTML = ""
+                    for (const book of json) {
+                        const rowElement = document.createElement("tr")
+
+                        const idElement = document.createElement("td")
+                        idElement.textContent = book.id
+                        rowElement.appendChild(idElement)
+
+                        const titleElement = document.createElement("td")
+                        titleElement.textContent = book.title
+                        rowElement.appendChild(titleElement)
+
+                        const authorElement = document.createElement("td")
+                        authorElement.textContent = book.author.fullName
+                        rowElement.appendChild(authorElement)
+
+                        const genresElement = document.createElement("td")
+                        var genresString = ""
+                        for (const genre of book.genres) {
+                            genresString += genre.name + " "
+                        }
+                        genresElement.textContent = genresString
+                        rowElement.appendChild(genresElement)
+
+                        const actionElement = document.createElement("td")
+                        const href = "\\book\\" + book.id
+                        const aElement = document.createElement("a");
+                        const linkText = document.createTextNode("Edit book");
+                        aElement.appendChild(linkText);
+                        aElement.href = href
+                        aElement.title = "Edit book"
+                        actionElement.appendChild(aElement)
+                        rowElement.appendChild(actionElement)
+
+                        tableBody.appendChild(rowElement)
+                    }
+                })
+        }
+    </script>
 </head>
-<body>
+<body onload="getBooks()">
 
 <h3>Books:</h3>
 
-<table class="books">
+<table id="books" class="books">
     <thead>
     <tr>
         <th>ID</th>
@@ -57,18 +111,12 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="book : ${books}">
-        <td th:text="${book.id}">1</td>
-        <td th:text="${book.title}">Harry Potter</td>
-        <td th:text="${book.author.fullName}">Joanne Rowlinq</td>
-        <td th:text="${#strings.listJoin(book.genres.![name], ', ')}">Fantasy</td>
-        <td>
-            <a th:href="@{/book/{id}(id=${book.id})}" href="bookEdit.html">Edit</a>
-        </td>
-    </tr>
     </tbody>
 </table>
 <div style="height: 10px">&nbsp;</div>
 <a th:href="@{/book}" href="bookEdit.html">New book</a>
+<div style="margin-top: 10px">
+    <button type="button" onclick="getBooks()">Get books</button>
+</div>
 </body>
 </html>
