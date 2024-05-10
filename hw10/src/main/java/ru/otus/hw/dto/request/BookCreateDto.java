@@ -15,8 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 public class BookCreateDto {
-    private long id;
-
     @NotBlank(message = "Title should not be blank")
     @Size(min = 2, max = 20, message = "Title should have expected size")
     private String title;

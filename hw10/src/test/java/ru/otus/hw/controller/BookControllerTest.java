@@ -56,7 +56,7 @@ public class BookControllerTest {
         AuthorDto authorDto = new AuthorDto(1L, "author");
         GenreDto genreDto = new GenreDto(2L, "genre");
         bookDto = new BookDto(3L, "book", authorDto, List.of(genreDto), null);
-        bookCreateDto = new BookCreateDto(3L, "book", 1L, Set.of(2L));
+        bookCreateDto = new BookCreateDto("book", 1L, Set.of(2L));
         bookUpdateDto = new BookUpdateDto(3L, "book", 1L, Set.of(2L));
     }
 

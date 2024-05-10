@@ -47,42 +47,105 @@
             padding-left: 30px;
         }
     </style>
+    <script>
+        function saveBook() {
+            const id = document.getElementById("id-input")
+            const title = document.getElementById("title-input")
+            const author = document.getElementById("author-input")
+            const genres = document.getElementById("genres-select").options
+            const genresSelected = Array.from(genres).filter(o => o.selected).map(o => o.value)
+
+            const book = {id: id.value, title: title.value, author: author.value, genres: genresSelected}
+            const method = id.value.length === 0 ? 'POST' : 'PUT'
+            fetch("/api/book", {
+                method: method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)})
+                .then(rawResponse => rawResponse.json())
+                .then(book => displayBook(book))
+                .then(() => alert(id.value.length === 0 ? "Book added" : "Book updated"))
+                .then(() => window.location.replace("/"))
+        }
+
+        function loadBook() {
+            const id = document.getElementById("id-input").value
+            if (id.length === 0) {
+                return
+            }
+            fetch("/api/book/" + id, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }})
+                .then(rawResponse => rawResponse.json())
+                .then(book => displayBook(book))
+        }
+
+        function displayBook(book) {
+            const id = document.getElementById("id-input")
+            id.value = book.id
+            const title = document.getElementById("title-input")
+            title.value = book.title
+            const author = document.getElementById("author-input")
+            author.value = book.author.id
+            const genres = document.getElementById("genres-select")
+            const genreIds = book.genres.map(genre => genre.id)
+            for (let i = 0; i < genres.options.length; i++) {
+                let optionValue = Number.parseInt(genres.options[i].value)
+                genres.options[i].selected = genreIds.indexOf(optionValue) >= 0;
+            }
+        }
+
+        function deleteBook() {
+            const id = document.getElementById("id-input").value
+            if (id.length === 0) {
+                return
+            }
+            fetch("/api/book/" + id, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }})
+                .then(() => alert("Book deleted"))
+                .then(() => window.location.replace("/"))
+
+        }
+    </script>
 </head>
-<body>
+<body onload="loadBook()">
 <!-- Book editing -->
-<form th:with="bookId=${book.id eq 0} ? '' : '/'+${book.id}"
-      id="edit-form" action="bookEdit.html" th:action="@{'/book' + ${bookId}}" th:method="post" th:object="${book}">
     <h3>Book Info:</h3>
 
     <div class="row">
         <label for="id-input">ID:</label>
-        <input id="id-input" type="text" readonly="readonly" name="id" th:value="*{id}" value="1"/>
-        <div class="errors" th:if="${#fields.hasErrors('id')}" th:errors="*{id}">Wrong book id error</div>
+        <input id="id-input" type="text" readonly="readonly" name="id" th:value="${id}" value="1"/>
     </div>
 
     <div class="row">
-        <label for="book-title-input">Title:</label>
-        <input id="book-title-input" name="title" type="text" th:value="*{title}" value="Harry Potter and Chamber of Secrets"/>
-        <div class="errors" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Wrong book title error</div>
+        <label for="title-input">Title:</label>
+        <input id="title-input" name="title" type="text" placeholder="Enter title"/>
     </div>
 
     <div class="row">
-        <label for="author">Author</label>
-        <select id="author" th:field="*{author}">
-            <option th:each="author : ${allAuthors}" th:value="${author.id}" th:text="${author.fullName}">Select author</option>
+        <label for="author-input">Author</label>
+        <select id="author-input">
+            <option th:each="author : ${allAuthors}"  th:value="${author.id}" th:text="${author.fullName}">Select author</option>
         </select>
-        <div class="errors" th:if="${#fields.hasErrors('author')}" th:errors="*{author}">Wrong book author error</div>
     </div>
 
     <div class="row">
-        <label for="genres">Genres</label>
-        <select id="genres" th:field="*{genres}" multiple="multiple">
-            <option th:each="genre : ${allGenres}" th:value="${{genre.id}}" th:text="${genre.name}">Select genres</option>
+        <label for="genres-select">Genres</label>
+        <select id="genres-select" multiple="multiple">
+            <option th:each="genre : ${allGenres}" th:value="${genre.id}" th:text="${genre.name}">Select genres</option>
         </select>
-        <div class="errors" th:if="${#fields.hasErrors('genres')}" th:errors="*{genres}">Wrong book genres error</div>
     </div>
 
-    <div th:hidden="*{id eq 0 or #fields.hasErrors()}" class="comments">
+    <div th:hidden="true" class="comments">
         <label for="comments">Comments:</label>
         <table style="margin-left: 100px" id="comments">
             <tbody>
@@ -91,22 +154,20 @@
             </tr>
             </tbody>
         </table>
-        <a th:href="@{/addComment(id=${book.id})}" href="addComment.html">Add Comment</a>
+        <a th:href="@{/addComment(id=${id})}" href="addComment.html">Add Comment</a>
     </div>
 
     <div class="row">
-        <button type="submit">Save</button>
+        <button type="button" onclick="saveBook()">Save</button>
         <a href="booksList.html" th:href="@{/}"><button type="button">Cancel</button></a>
     </div>
-</form>
 
 <!-- Book deletion -->
-<form th:hidden="${book.id eq 0}" id="delete-form" action="bookEdit.html" th:action="@{/book/{id}/delete(id=${book.id})}" th:method="post" th:object="${book}">
     <h3>Book deletion:</h3>
     <div class="row">
-        <button type="submit">Delete</button>
+        <button type="button" onclick="deleteBook()">Delete</button>
     </div>
-</form>
+
 
 </body>
 </html>
