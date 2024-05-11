@@ -64,10 +64,12 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(book)})
+                .then(rawResponse => handleErrors(rawResponse))
                 .then(rawResponse => rawResponse.json())
                 .then(book => displayBook(book))
                 .then(() => alert(id.value.length === 0 ? "Book added" : "Book updated"))
                 .then(() => window.location.replace("/"))
+                .catch(error => alert("Ошибка" + error))
         }
 
         function loadBook() {
@@ -81,8 +83,10 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 }})
+                .then(rawResponse => handleErrors(rawResponse))
                 .then(rawResponse => rawResponse.json())
                 .then(book => displayBook(book))
+                .catch(error => alert("Ошибка" + error))
         }
 
         function displayBook(book) {
@@ -117,6 +121,7 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 }})
+                .then(rawResponse => handleErrors(rawResponse))
                 .then(rawResponse => rawResponse.json())
                 .then(json => {
                     const table = document.getElementById("comments")
@@ -132,6 +137,7 @@
                         tableBody.appendChild(rowElement)
                     }
                 })
+                .catch(error => alert("Ошибка" + error))
         }
 
         function deleteBook() {
@@ -145,9 +151,15 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 }})
+                .then(rawResponse => handleErrors(rawResponse))
                 .then(() => alert("Book deleted"))
                 .then(() => window.location.replace("/"))
+                .catch(error => alert("Ошибка" + error))
+        }
 
+        function handleErrors(response) {
+            if (!response.ok) throw new Error(response.status);
+            return response;
         }
     </script>
 </head>

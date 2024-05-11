@@ -53,9 +53,15 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(comment)})
-                .then(rawResponse => rawResponse.json())
+                .then(rawResponse => handleErrors(rawResponse))
                 .then(() => alert("Comment added"))
                 .then(() => window.location.replace("/book/" + bookId))
+                .catch(error => alert("Ошибка" + error))
+        }
+
+        function handleErrors(response) {
+            if (!response.ok) throw new Error(response.status);
+            return response;
         }
     </script>
 </head>
