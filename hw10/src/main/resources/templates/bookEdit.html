@@ -98,6 +98,40 @@
                 let optionValue = Number.parseInt(genres.options[i].value)
                 genres.options[i].selected = genreIds.indexOf(optionValue) >= 0;
             }
+            const commentsBlock = document.getElementById("comments-block")
+
+            commentsBlock.hidden = false
+            const addCommentRef = document.getElementById("addCommentRef");
+            addCommentRef.href = "/addComment?id=" + book.id
+            loadComments(book)
+        }
+
+        function loadComments(book) {
+            const id = book.id
+            if (id.length === 0) {
+                return
+            }
+            fetch("/api/book/" + id + "/comment", {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }})
+                .then(rawResponse => rawResponse.json())
+                .then(json => {
+                    const table = document.getElementById("comments")
+                    const tableBody = table.querySelector("tbody")
+                    tableBody.innerHTML = ""
+                    for (const comment of json) {
+                        const rowElement = document.createElement("tr")
+
+                        const commentElement = document.createElement("td")
+                        commentElement.textContent = comment.text
+                        rowElement.appendChild(commentElement)
+
+                        tableBody.appendChild(rowElement)
+                    }
+                })
         }
 
         function deleteBook() {
@@ -145,16 +179,13 @@
         </select>
     </div>
 
-    <div th:hidden="true" class="comments">
+    <div hidden id="comments-block" class="comments">
         <label for="comments">Comments:</label>
         <table style="margin-left: 100px" id="comments">
             <tbody>
-            <tr th:each="comment : ${comments}">
-                <td style="font-size: small" th:text="${comment.text}">comment</td>
-            </tr>
             </tbody>
         </table>
-        <a th:href="@{/addComment(id=${id})}" href="addComment.html">Add Comment</a>
+        <a id="addCommentRef" href="addComment.html">Add Comment</a>
     </div>
 
     <div class="row">
@@ -167,7 +198,6 @@
     <div class="row">
         <button type="button" onclick="deleteBook()">Delete</button>
     </div>
-
 
 </body>
 </html>

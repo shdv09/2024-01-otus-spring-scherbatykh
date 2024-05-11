@@ -53,7 +53,6 @@
             })
                 .then(rawResponse => rawResponse.json())
                 .then(json => {
-                    console.log(json)
                     const table = document.getElementById("books")
                     const tableBody = table.querySelector("tbody")
                     tableBody.innerHTML = ""

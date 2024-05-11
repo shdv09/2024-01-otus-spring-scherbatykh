@@ -11,6 +11,9 @@ import ru.otus.hw.models.Comment;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.CommentRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -37,5 +40,12 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findById(id)
                 .map(commentMapper::toDto)
                 .orElseThrow(() -> new NotFoundException("Comment with id = %d not found".formatted(id)));
+    }
+
+    @Override
+    public List<CommentDto> findByBookId(long bookId) {
+        return commentRepository.findByBookId(bookId).stream()
+                .map(commentMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

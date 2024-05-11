@@ -12,39 +12,54 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.otus.hw.dto.request.BookCreateDto;
 import ru.otus.hw.dto.request.BookUpdateDto;
+import ru.otus.hw.dto.request.CommentCreateDto;
 import ru.otus.hw.dto.response.BookDto;
+import ru.otus.hw.dto.response.CommentDto;
 import ru.otus.hw.services.BookService;
+import ru.otus.hw.services.CommentService;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/book")
+@RequestMapping("/api")
 public class BookRestController {
     private final BookService bookService;
 
-    @GetMapping
+    private final CommentService commentService;
+
+    @GetMapping("/book")
     public List<BookDto> getAllBooks() {
         return bookService.findAll();
     }
 
-    @PostMapping()
+    @PostMapping("/book")
     public BookDto addBook(@RequestBody @Valid BookCreateDto book) {
         return bookService.create(book);
     }
 
-    @PutMapping()
+    @PutMapping("/book")
     public BookDto editBook(@RequestBody @Valid BookUpdateDto book) {
         return bookService.update(book);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/book/{id}")
     public BookDto findBook(@PathVariable(name = "id") long id) {
         return bookService.findById(id);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/book/{id}")
     public void deleteBook(@PathVariable(name = "id") long id) {
         bookService.deleteById(id);
+    }
+
+    @GetMapping("/book/{id}/comment")
+    public List<CommentDto> getCommentsForBook(@PathVariable(name = "id") long bookId) {
+        return commentService.findByBookId(bookId);
+    }
+
+    @PostMapping("/book/{id}/comment")
+    public CommentDto addComment(@PathVariable(name = "id") long bookId, @RequestBody @Valid CommentCreateDto comment) {
+        return commentService.create(bookId, comment.getText());
     }
 }
