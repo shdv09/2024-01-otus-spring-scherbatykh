@@ -2,22 +2,24 @@ package ru.otus.hw.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.otus.hw.dto.response.ErrorDto;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class ControllerExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    void notFoundException(NotFoundException e) {
+    ResponseEntity<ErrorDto> notFoundException(NotFoundException e) {
         log.error("Object not found: {}", e.getMessage());
+        return new ResponseEntity<>(new ErrorDto(e.toString()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    void commonHandler(Exception e) {
+    ResponseEntity<ErrorDto> commonHandler(Exception e) {
         log.error("Server error: {}", e.getMessage(), e);
+        return new ResponseEntity<>(new ErrorDto(e.toString()), HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 }

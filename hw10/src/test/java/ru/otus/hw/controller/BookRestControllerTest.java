@@ -117,7 +117,7 @@ public class BookRestControllerTest {
     void shouldEditExistedBook() throws Exception {
         given(bookService.update(any())).willReturn(bookDto);
 
-        MvcResult mvcResult = mvc.perform(put("/api/book")
+        MvcResult mvcResult = mvc.perform(put("/api/book/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(MAPPER.writeValueAsString(bookUpdateDto)))
                 .andExpect(status().isOk()).andDo(print())

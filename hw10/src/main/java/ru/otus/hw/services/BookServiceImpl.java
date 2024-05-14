@@ -1,6 +1,7 @@
 package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.dto.request.BookCreateDto;
@@ -47,7 +48,7 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     @Override
     public List<BookDto> findAll() {
-        return bookRepository.findAllByOrderByTitleAsc().stream()
+        return bookRepository.findAll(Sort.by(Sort.Order.asc("title"))).stream()
                 .map(bookMapper::toDto)
                 .toList();
     }
@@ -55,8 +56,8 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public BookDto create(BookCreateDto dto) {
-        var author = findAuthor(dto.getAuthor());
-        var genres = findGenres(dto.getGenres());
+        var author = findAuthor(dto.getAuthorId());
+        var genres = findGenres(dto.getGenreIds());
         Book book = bookMapper.fromDto(dto, author, genres);
         return bookMapper.toDto(bookRepository.save(book));
     }
@@ -67,8 +68,8 @@ public class BookServiceImpl implements BookService {
     public BookDto update(BookUpdateDto dto) {
         bookRepository.findById(dto.getId())
                 .orElseThrow(() -> new NotFoundException("Book with id %d not found".formatted(dto.getId())));
-        var author = findAuthor(dto.getAuthor());
-        var genres = findGenres(dto.getGenres());
+        var author = findAuthor(dto.getAuthorId());
+        var genres = findGenres(dto.getGenreIds());
         Book book = bookMapper.fromDto(dto, author, genres);
         return bookMapper.toDto(bookRepository.save(book));
     }

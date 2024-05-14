@@ -1,17 +1,11 @@
 package ru.otus.hw.controller;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.controllers.BookController;
-import ru.otus.hw.services.AuthorService;
-import ru.otus.hw.services.GenreService;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,17 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BookControllerTest {
     @Autowired
     private MockMvc mvc;
-
-    @MockBean
-    private AuthorService authorService;
-
-    @MockBean
-    private GenreService genreService;
-
-    @AfterEach
-    void after() {
-        verifyNoMoreInteractions(authorService, genreService);
-    }
 
     @Test
     void shouldReturnCorrectBookListPage() throws Exception {
@@ -45,9 +28,6 @@ public class BookControllerTest {
         mvc.perform(get("/book/3"))
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(view().name("bookEdit"));
-
-        verify(authorService).findAll();
-        verify(genreService).findAll();
     }
 
     @Test
@@ -55,8 +35,5 @@ public class BookControllerTest {
         mvc.perform(get("/book"))
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(view().name("bookEdit"));
-
-        verify(authorService).findAll();
-        verify(genreService).findAll();
     }
 }

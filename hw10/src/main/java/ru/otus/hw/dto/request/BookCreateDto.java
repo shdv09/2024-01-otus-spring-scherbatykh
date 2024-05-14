@@ -20,9 +20,9 @@ public class BookCreateDto {
     private String title;
 
     @NotNull(message = "Author should not be null")
-    private Long author;
+    private Long authorId;
 
     @NotEmpty(message = "Genres should not be empty")
     @NonNullElements
-    private Set<Long> genres;
+    private Set<Long> genreIds;
 }
