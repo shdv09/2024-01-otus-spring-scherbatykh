@@ -19,6 +19,7 @@ import ru.otus.hw.dto.response.AuthorDto;
 import ru.otus.hw.dto.response.BookDto;
 import ru.otus.hw.dto.response.CommentDto;
 import ru.otus.hw.dto.response.GenreDto;
+import ru.otus.hw.exceptions.NotFoundException;
 import ru.otus.hw.services.AuthorService;
 import ru.otus.hw.services.BookService;
 import ru.otus.hw.services.CommentService;
@@ -33,6 +34,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -85,7 +87,7 @@ public class BookRestControllerTest {
     }
 
     @Test
-    void shouldReturnCorrectBookList() throws Exception {
+    void getBookListPositiveTest() throws Exception {
         List<BookDto> daoRes = List.of(this.bookDto);
         given(bookService.findAll()).willReturn(daoRes);
 
@@ -99,7 +101,17 @@ public class BookRestControllerTest {
     }
 
     @Test
-    void shouldSaveNewBook() throws Exception {
+    void getBookListError500Test() throws Exception {
+        given(bookService.findAll()).willThrow(RuntimeException.class);
+
+        mvc.perform(get("/api/book"))
+                .andExpect(status().isInternalServerError()).andDo(print());
+
+        verify(bookService).findAll();
+    }
+
+    @Test
+    void saveNewBookPositiveTest() throws Exception {
         given(bookService.create(any())).willReturn(bookDto);
 
         MvcResult mvcResult = mvc.perform(post("/api/book")
@@ -114,7 +126,19 @@ public class BookRestControllerTest {
     }
 
     @Test
-    void shouldEditExistedBook() throws Exception {
+    void saveNewBookError500Test() throws Exception {
+        given(bookService.create(any())).willThrow(RuntimeException.class);
+
+        mvc.perform(post("/api/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(MAPPER.writeValueAsString(bookCreateDto)))
+                .andExpect(status().isInternalServerError()).andDo(print());;
+
+        verify(bookService).create(bookCreateDto);
+    }
+
+    @Test
+    void editBookPositiveTest() throws Exception {
         given(bookService.update(any())).willReturn(bookDto);
 
         MvcResult mvcResult = mvc.perform(put("/api/book/3")
@@ -129,7 +153,31 @@ public class BookRestControllerTest {
     }
 
     @Test
-    void shouldFindCertainBook() throws Exception {
+    void editBookError404Test() throws Exception {
+        given(bookService.update(any())).willThrow(NotFoundException.class);
+
+        mvc.perform(put("/api/book/3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(MAPPER.writeValueAsString(bookUpdateDto)))
+                .andExpect(status().isNotFound()).andDo(print());
+
+        verify(bookService).update(any());
+    }
+
+    @Test
+    void editBookError500Test() throws Exception {
+        given(bookService.update(any())).willThrow(RuntimeException.class);
+
+        mvc.perform(put("/api/book/3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(MAPPER.writeValueAsString(bookUpdateDto)))
+                .andExpect(status().isInternalServerError()).andDo(print());
+
+        verify(bookService).update(any());
+    }
+
+    @Test
+    void findBookPositiveTest() throws Exception {
         BookDto daoRes = this.bookDto;
         given(bookService.findById(anyLong())).willReturn(daoRes);
 
@@ -143,7 +191,27 @@ public class BookRestControllerTest {
     }
 
     @Test
-    void shouldDeleteBook() throws Exception {
+    void findBookError404Test() throws Exception {
+        given(bookService.findById(anyLong())).willThrow(NotFoundException.class);
+
+        mvc.perform(get("/api/book/3"))
+                .andExpect(status().isNotFound()).andDo(print());
+
+        verify(bookService).findById(3L);
+    }
+
+    @Test
+    void findBookError500Test() throws Exception {
+        given(bookService.findById(anyLong())).willThrow(RuntimeException.class);
+
+        mvc.perform(get("/api/book/3"))
+                .andExpect(status().isInternalServerError()).andDo(print());
+
+        verify(bookService).findById(3L);
+    }
+
+    @Test
+    void deleteBookPositiveTest() throws Exception {
         doNothing().when(bookService).deleteById(3L);
 
         mvc.perform(delete("/api/book/3"))
@@ -153,7 +221,17 @@ public class BookRestControllerTest {
     }
 
     @Test
-    void shouldReturnCommentsForBook() throws Exception {
+    void deleteBookError500Test() throws Exception {
+        doThrow(RuntimeException.class).when(bookService).deleteById(3L);
+
+        mvc.perform(delete("/api/book/3"))
+                .andExpect(status().isInternalServerError()).andDo(print());
+
+        verify(bookService).deleteById(3L);
+    }
+
+    @Test
+    void getCommentsForBookPositiveTest() throws Exception {
         List<CommentDto> daoRes = List.of(this.commentDto);
         given(commentService.findByBookId(anyLong())).willReturn(daoRes);
 
@@ -167,7 +245,18 @@ public class BookRestControllerTest {
     }
 
     @Test
-    void shouldAddNewCommentForBook() throws Exception {
+    void getCommentsForBookError500Test() throws Exception {
+        given(commentService.findByBookId(anyLong())).willThrow(RuntimeException.class);
+
+        mvc.perform(get("/api/book/3/comment"))
+                .andExpect(status().isInternalServerError()).andDo(print())
+                .andReturn();
+
+        verify(commentService).findByBookId(3L);
+    }
+
+    @Test
+    void addNewCommentForBookPositiveTest() throws Exception {
         given(commentService.create(anyLong(), anyString())).willReturn(commentDto);
 
         CommentCreateDto request = new CommentCreateDto("comment text");
@@ -180,5 +269,33 @@ public class BookRestControllerTest {
         CommentDto response = MAPPER.readValue(mvcResult.getResponse().getContentAsString(), CommentDto.class);
         verify(commentService).create(3L, request.getText());
         assertEquals(commentDto, response);
+    }
+
+    @Test
+    void addNewCommentForBookError404Test() throws Exception {
+        given(commentService.create(anyLong(), anyString())).willThrow(NotFoundException.class);
+
+        CommentCreateDto request = new CommentCreateDto("comment text");
+        mvc.perform(post("/api/book/3/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(MAPPER.writeValueAsString(request)))
+                .andExpect(status().isNotFound()).andDo(print())
+                .andReturn();
+
+        verify(commentService).create(3L, request.getText());
+    }
+
+    @Test
+    void addNewCommentForBookTest() throws Exception {
+        given(commentService.create(anyLong(), anyString())).willThrow(RuntimeException.class);
+
+        CommentCreateDto request = new CommentCreateDto("comment text");
+        mvc.perform(post("/api/book/3/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(MAPPER.writeValueAsString(request)))
+                .andExpect(status().isInternalServerError()).andDo(print())
+                .andReturn();
+
+        verify(commentService).create(3L, request.getText());
     }
 }
