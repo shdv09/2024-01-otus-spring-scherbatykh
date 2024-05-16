@@ -32,10 +32,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WithMockUser(username = "user")
 @WebMvcTest(CommentController.class)
 @Import({SecurityConfig.class})
 public class CommentControllerTest {
@@ -69,8 +69,9 @@ public class CommentControllerTest {
         verifyNoMoreInteractions(bookService, authorService, genreService);
     }
 
+    @WithMockUser(username = "user")
     @Test
-    void shouldReturnCorrectAddCommentPage() throws Exception {
+    void addCommentPagePositiveTest() throws Exception {
         given(bookService.findById(3L)).willReturn(bookDto);
 
         mvc.perform(get("/addComment?id=3"))
@@ -81,7 +82,16 @@ public class CommentControllerTest {
     }
 
     @Test
-    void shouldSaveNewComment() throws Exception {
+    void addCommentPageUnauthorizedTest() throws Exception {
+        mvc.perform(get("/addComment?id=3"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
+    void saveNewCommentPositiveTest() throws Exception {
         given(bookService.findById(3L)).willReturn(bookDto);
         given(commentService.create(anyLong(), anyString())).willReturn(new CommentDto(1L, "text"));
 
@@ -97,5 +107,15 @@ public class CommentControllerTest {
         verify(commentService).create(anyLong(), anyString());
         verify(authorService).findAll();
         verify(genreService).findAll();
+    }
+
+    @Test
+    void saveNewCommentUnauthorizedTest() throws Exception {
+        mvc.perform(post("/addComment")
+                        .flashAttr("book", bookDto)
+                        .flashAttr("comment", new CommentCreateDto(0, "text")))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
     }
 }

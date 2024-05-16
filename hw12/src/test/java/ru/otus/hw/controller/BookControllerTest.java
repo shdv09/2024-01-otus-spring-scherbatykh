@@ -31,10 +31,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WithMockUser(username = "user")
 @WebMvcTest(BookController.class)
 @Import({SecurityConfig.class})
 public class BookControllerTest {
@@ -70,8 +70,9 @@ public class BookControllerTest {
         verifyNoMoreInteractions(bookService, authorService, genreService);
     }
 
+    @WithMockUser(username = "user")
     @Test
-    void shouldReturnCorrectBookList() throws Exception {
+    void bookListPositiveTest() throws Exception {
         given(bookService.findAll()).willReturn(List.of(bookDto));
 
         mvc.perform(get("/"))
@@ -82,7 +83,16 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldReturnCorrectBookEditPage() throws Exception {
+    void bookListUnauthorizedTest() throws Exception {
+        mvc.perform(get("/"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
+    void bookEditPagePositiveTest() throws Exception {
         given(bookService.findById(3L)).willReturn(bookDto);
 
         mvc.perform(get("/book/3"))
@@ -95,7 +105,16 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldSaveNewBook() throws Exception {
+    void BookEditPageUnauthorizedTest() throws Exception {
+        mvc.perform(get("/book/3"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
+    void saveNewBookPositiveTest() throws Exception {
         bookDto.setId(0L);
         given(bookService.create(any())).willReturn(bookDto);
 
@@ -108,7 +127,17 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldEditExistedBook() throws Exception {
+    void saveNewBookUnauthorizedTest() throws Exception {
+        mvc.perform(post("/book")
+                        .flashAttr("book", bookCreateDto))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
+    void editExistedBookPositiveTest() throws Exception {
         given(bookService.update(any())).willReturn(bookDto);
 
         mvc.perform(post("/book/3")
@@ -120,7 +149,17 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldReturnCorrectBookCreatePage() throws Exception {
+    void editExistedBookUnauthorizedTest() throws Exception {
+        mvc.perform(post("/book/3")
+                        .flashAttr("book", bookUpdateDto))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
+    void bookCreatePagePositiveTest() throws Exception {
         mvc.perform(get("/book"))
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(view().name("bookEdit"));
@@ -130,7 +169,16 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldDeleteBook() throws Exception {
+    void bookCreatePageUnauthorizedTest() throws Exception {
+        mvc.perform(get("/book"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
+    void deleteBookPositiveTest() throws Exception {
         doNothing().when(bookService).deleteById(3L);
 
         mvc.perform(post("/book/3/delete")
@@ -139,5 +187,14 @@ public class BookControllerTest {
                 .andExpect(view().name("redirect:/"));
 
         verify(bookService).deleteById(3L);
+    }
+
+    @Test
+    void deleteBookUnauthorizedTest() throws Exception {
+        mvc.perform(post("/book/3/delete")
+                        .flashAttr("book", bookDto))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
     }
 }
