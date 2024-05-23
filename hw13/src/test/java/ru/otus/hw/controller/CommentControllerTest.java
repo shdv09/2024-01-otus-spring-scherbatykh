@@ -89,6 +89,14 @@ public class CommentControllerTest {
                 .andDo(print());
     }
 
+    @WithMockUser(username = "user", roles = "")
+    @Test
+    void addCommentPageForbiddenTest() throws Exception {
+        mvc.perform(get("/addComment?id=3"))
+                .andExpect(status().isForbidden())
+                .andDo(print());
+    }
+
     @WithMockUser(username = "user")
     @Test
     void saveNewCommentPositiveTest() throws Exception {
@@ -116,6 +124,16 @@ public class CommentControllerTest {
                         .flashAttr("comment", new CommentCreateDto(0, "text")))
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrlPattern("**/login"))
+                .andDo(print());
+    }
+
+    @WithMockUser(username = "user", roles = "")
+    @Test
+    void saveNewCommentForbiddenTest() throws Exception {
+        mvc.perform(post("/addComment")
+                        .flashAttr("book", bookDto)
+                        .flashAttr("comment", new CommentCreateDto(0, "text")))
+                .andExpect(status().isForbidden())
                 .andDo(print());
     }
 }

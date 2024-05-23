@@ -11,3 +11,11 @@ insert into comments (book_id, text) values (1, 'good'), (1, 'like');
 
 /*user:password*/
 insert into user_data(username, password) values ('user', '$2y$04$gMllrpB0tMcOAYi22jkI1eIIbR/jwNlQOhexTlZ9D90VXwt51A4D.');
+/*admin:pass*/
+insert into user_data(username, password) values ('admin', '$2y$04$A./uSTFJZdu5NLefAGuE8.N9ZdNDrEH/4AAcOrhvz4fTKLRWwPXOW');
+
+insert into user_user_roles(user_id, user_roles) values (select id from user_data where username = 'user', 'ROLE_USER');
+insert into user_user_roles(user_id, user_roles) values (select id from user_data where username = 'admin', 'ROLE_ADMIN');
+
+
+

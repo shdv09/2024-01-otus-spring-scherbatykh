@@ -90,6 +90,13 @@ public class BookControllerTest {
                 .andDo(print());
     }
 
+    @WithMockUser(username = "user", roles = "")
+    @Test
+    void bookListForbiddenTest() throws Exception {
+        mvc.perform(get("/"))
+                .andExpect(status().isForbidden());
+    }
+
     @WithMockUser(username = "user")
     @Test
     void bookEditPagePositiveTest() throws Exception {
@@ -112,7 +119,14 @@ public class BookControllerTest {
                 .andDo(print());
     }
 
-    @WithMockUser(username = "user")
+    @WithMockUser(username = "user", roles = "")
+    @Test
+    void BookEditPageForbiddenTest() throws Exception {
+        mvc.perform(get("/book/3"))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "user", roles = "ADMIN")
     @Test
     void saveNewBookPositiveTest() throws Exception {
         bookDto.setId(0L);
@@ -137,6 +151,14 @@ public class BookControllerTest {
 
     @WithMockUser(username = "user")
     @Test
+    void saveNewBookForbiddenTest() throws Exception {
+        mvc.perform(post("/book")
+                        .flashAttr("book", bookCreateDto))
+                .andExpect(status().isForbidden()).andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
     void editExistedBookPositiveTest() throws Exception {
         given(bookService.update(any())).willReturn(bookDto);
 
@@ -157,7 +179,15 @@ public class BookControllerTest {
                 .andDo(print());
     }
 
-    @WithMockUser(username = "user")
+    @WithMockUser(username = "user", roles = "")
+    @Test
+    void editExistedBookForbiddenTest() throws Exception {
+        mvc.perform(post("/book/3")
+                        .flashAttr("book", bookUpdateDto))
+                .andExpect(status().isForbidden());
+    }
+
+    @WithMockUser(username = "user", roles = "ADMIN")
     @Test
     void bookCreatePagePositiveTest() throws Exception {
         mvc.perform(get("/book"))
@@ -178,6 +208,13 @@ public class BookControllerTest {
 
     @WithMockUser(username = "user")
     @Test
+    void bookCreatePageForbiddenTest() throws Exception {
+        mvc.perform(get("/book"))
+                .andExpect(status().isForbidden()).andDo(print());
+    }
+
+    @WithMockUser(username = "user", roles = "ADMIN")
+    @Test
     void deleteBookPositiveTest() throws Exception {
         doNothing().when(bookService).deleteById(3L);
 
@@ -196,5 +233,13 @@ public class BookControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrlPattern("**/login"))
                 .andDo(print());
+    }
+
+    @WithMockUser(username = "user")
+    @Test
+    void deleteBookForbiddenTest() throws Exception {
+        mvc.perform(post("/book/3/delete")
+                        .flashAttr("book", bookDto))
+                .andExpect(status().isForbidden()).andDo(print());
     }
 }
