@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "user_data")
+@Table(name = "users")
 @Getter
 @Setter
 @ToString
