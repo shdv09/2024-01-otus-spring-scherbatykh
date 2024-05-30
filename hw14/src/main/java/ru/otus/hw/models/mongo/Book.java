@@ -1,24 +1,28 @@
-package ru.otus.hw.models;
+package ru.otus.hw.models.mongo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "comments")
+import java.util.List;
+
+@Document(collection = "books")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment {
+@ToString
+public class Book {
     @Id
     private String id;
 
-    private String text;
+    private String title;
 
-    @DBRef(lazy = true)
-    private Book book;
+    private Author author;
+
+    private List<Genre> genres;
 }

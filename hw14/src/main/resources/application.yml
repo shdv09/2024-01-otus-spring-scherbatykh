@@ -1,8 +1,18 @@
 spring:
 
+  shell:
+    interactive:
+      enabled: true
+    noninteractive:
+      enabled: false
+
+    command:
+      version:
+        enabled: false
+
   batch:
     job:
-      enabled: true
+      enabled: false
 
   data:
     mongodb:
