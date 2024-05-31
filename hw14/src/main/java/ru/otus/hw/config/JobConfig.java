@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -44,7 +43,6 @@ public class JobConfig {
 
     private final BookMongoToSqlTransformer bookMongoToSqlTransformer;
 
-    @StepScope
     @Bean
     public MongoPagingItemReader<Book> reader(MongoTemplate template) {
         return new MongoPagingItemReaderBuilder<Book>()
@@ -56,13 +54,11 @@ public class JobConfig {
                 .build();
     }
 
-    @StepScope
     @Bean
     public ItemProcessor<Book, BookJpa> processor() {
         return bookMongoToSqlTransformer::transform;
     }
 
-    @StepScope
     @Bean
     public JpaItemWriter<BookJpa> writer(EntityManager entityManager) {
         return new JpaItemWriterBuilder<BookJpa>()
