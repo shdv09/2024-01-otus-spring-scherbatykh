@@ -21,11 +21,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
+import ru.otus.hw.models.jpa.AuthorJpa;
 import ru.otus.hw.models.jpa.BookJpa;
+import ru.otus.hw.models.jpa.GenreJpa;
+import ru.otus.hw.models.mongo.Author;
 import ru.otus.hw.models.mongo.Book;
+import ru.otus.hw.models.mongo.Genre;
+import ru.otus.hw.service.AuthorMongoToSqlTransformer;
 import ru.otus.hw.service.BookMongoToSqlTransformer;
+import ru.otus.hw.service.CleanUpService;
+import ru.otus.hw.service.GenreMongoToSqlTransformer;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 @RequiredArgsConstructor
@@ -41,10 +49,34 @@ public class JobConfig {
 
     private final PlatformTransactionManager platformTransactionManager;
 
-    private final BookMongoToSqlTransformer bookMongoToSqlTransformer;
+    private final Map<String, Long> authorsDic = new HashMap<>();
+
+    private final Map<String, Long> genresDic = new HashMap<>();
 
     @Bean
-    public MongoPagingItemReader<Book> reader(MongoTemplate template) {
+    public MongoPagingItemReader<Author> authorReader(MongoTemplate template) {
+        return new MongoPagingItemReaderBuilder<Author>()
+                .name("authorMongoReader")
+                .template(template)
+                .jsonQuery("{}")
+                .targetType(Author.class)
+                .sorts(new HashMap<>())
+                .build();
+    }
+
+    @Bean
+    public MongoPagingItemReader<Genre> genreReader(MongoTemplate template) {
+        return new MongoPagingItemReaderBuilder<Genre>()
+                .name("genreMongoReader")
+                .template(template)
+                .jsonQuery("{}")
+                .targetType(Genre.class)
+                .sorts(new HashMap<>())
+                .build();
+    }
+
+    @Bean
+    public MongoPagingItemReader<Book> bookReader(MongoTemplate template) {
         return new MongoPagingItemReaderBuilder<Book>()
                 .name("bookMongoReader")
                 .template(template)
@@ -55,34 +87,85 @@ public class JobConfig {
     }
 
     @Bean
-    public ItemProcessor<Book, BookJpa> processor() {
-        return bookMongoToSqlTransformer::transform;
+    public AuthorMongoToSqlTransformer authorMongoToSqlTransformer() {
+        return new AuthorMongoToSqlTransformer(authorsDic);
     }
 
     @Bean
-    public JpaItemWriter<BookJpa> writer(EntityManager entityManager) {
+    public GenreMongoToSqlTransformer genreMongoToSqlTransformer() {
+        return new GenreMongoToSqlTransformer(genresDic);
+    }
+
+    @Bean
+    public BookMongoToSqlTransformer bookMongoToSqlTransformer() {
+        return new BookMongoToSqlTransformer(authorsDic, genresDic);
+    }
+
+    @Bean
+    public ItemProcessor<Author, AuthorJpa> authorProcessor(AuthorMongoToSqlTransformer authorTransformer) {
+        return authorTransformer::transform;
+    }
+
+    @Bean
+    public ItemProcessor<Genre, GenreJpa> genreProcessor(GenreMongoToSqlTransformer genreTransformer) {
+        return genreTransformer::transform;
+    }
+
+    @Bean
+    public ItemProcessor<Book, BookJpa> bookProcessor(BookMongoToSqlTransformer bookTransformer) {
+        return bookTransformer::transform;
+    }
+
+    @Bean
+    public JpaItemWriter<AuthorJpa> authorWriter(EntityManager entityManager) {
+        return new JpaItemWriterBuilder<AuthorJpa>()
+                .entityManagerFactory(entityManager.getEntityManagerFactory())
+                .build();
+    }
+
+    @Bean
+    public JpaItemWriter<GenreJpa> genreWriter(EntityManager entityManager) {
+        return new JpaItemWriterBuilder<GenreJpa>()
+                .entityManagerFactory(entityManager.getEntityManagerFactory())
+                .build();
+    }
+
+    @Bean
+    public JpaItemWriter<BookJpa> bookWriter(EntityManager entityManager) {
         return new JpaItemWriterBuilder<BookJpa>()
                 .entityManagerFactory(entityManager.getEntityManagerFactory())
                 .build();
     }
 
     @Bean
-    public MethodInvokingTaskletAdapter cleanUpTasklet() {
+    public MethodInvokingTaskletAdapter cleanUpTasklet(CleanUpService cleanUpService) {
         MethodInvokingTaskletAdapter adapter = new MethodInvokingTaskletAdapter();
 
-        adapter.setTargetObject(bookMongoToSqlTransformer);
+        adapter.setTargetObject(cleanUpService);
         adapter.setTargetMethod("cleanUp");
 
         return adapter;
     }
 
     @Bean
-    public Job importUserJob(Step transformBooksStep) {
-        return new JobBuilder(JOB_NAME, jobRepository)
-                .incrementer(new RunIdIncrementer())
-                .flow(transformBooksStep)
-                .next(cleanUpStep())
-                .end()
+    public Step transformAuthorsStep(ItemReader<Author> reader, JpaItemWriter<AuthorJpa> writer,
+                                   ItemProcessor<Author, AuthorJpa> itemProcessor) {
+        return new StepBuilder("transformAuthorsStep", jobRepository)
+                .<Author, AuthorJpa>chunk(CHUNK_SIZE, platformTransactionManager)
+                .reader(reader)
+                .processor(itemProcessor)
+                .writer(writer)
+                .build();
+    }
+
+    @Bean
+    public Step transformGenresStep(ItemReader<Genre> reader, JpaItemWriter<GenreJpa> writer,
+                                   ItemProcessor<Genre, GenreJpa> itemProcessor) {
+        return new StepBuilder("transformGenresStep", jobRepository)
+                .<Genre, GenreJpa>chunk(CHUNK_SIZE, platformTransactionManager)
+                .reader(reader)
+                .processor(itemProcessor)
+                .writer(writer)
                 .build();
     }
 
@@ -98,9 +181,24 @@ public class JobConfig {
     }
 
     @Bean
-    public Step cleanUpStep() {
+    public Job migrateBooksJob(Step transformBooksStep,
+                               Step transformAuthorsStep,
+                               Step transformGenresStep,
+                               Step cleanUpStep) {
+        return new JobBuilder(JOB_NAME, jobRepository)
+                .incrementer(new RunIdIncrementer())
+                .flow(transformAuthorsStep)
+                .next(transformGenresStep)
+                .next(transformBooksStep)
+                .next(cleanUpStep)
+                .end()
+                .build();
+    }
+
+    @Bean
+    public Step cleanUpStep(CleanUpService cleanUpService) {
         return new StepBuilder("cleanUpStep", jobRepository)
-                .tasklet(cleanUpTasklet(), platformTransactionManager)
+                .tasklet(cleanUpTasklet(cleanUpService), platformTransactionManager)
                 .build();
     }
 }
