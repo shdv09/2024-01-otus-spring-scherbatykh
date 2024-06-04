@@ -21,7 +21,7 @@ spring:
       database: library
 
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:maindb
     driverClassName: org.h2.Driver
     username: sa
     password:
