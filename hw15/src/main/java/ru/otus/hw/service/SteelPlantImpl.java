@@ -3,8 +3,11 @@ package ru.otus.hw.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.otus.hw.domain.Iron;
 import ru.otus.hw.domain.IronOre;
+import ru.otus.hw.domain.Steel;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -14,7 +17,11 @@ public class SteelPlantImpl implements SteelPlant {
 
     @Override
     public void startProductionCycle() {
-        Iron result = steelPlantGateway.process(new IronOre());
+        List<Steel> result = new LinkedList<>();
+        for (int i = 0; i < 10; i++) {
+            var steel = steelPlantGateway.process(new IronOre());
+            result.add(steel);
+        }
         log.info("Result of production cycle: {}", result);
     }
 }

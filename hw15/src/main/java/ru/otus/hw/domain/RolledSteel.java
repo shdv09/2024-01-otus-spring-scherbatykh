@@ -1,4 +1,4 @@
 package ru.otus.hw.domain;
 
-public class RolledSteel {
+public class RolledSteel extends Steel {
 }
