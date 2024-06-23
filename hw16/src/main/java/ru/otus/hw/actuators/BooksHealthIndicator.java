@@ -1,11 +1,13 @@
 package ru.otus.hw.actuators;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 import ru.otus.hw.repositories.BookRepository;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class BooksHealthIndicator implements HealthIndicator {
@@ -25,7 +27,7 @@ public class BooksHealthIndicator implements HealthIndicator {
         try {
             storageEmpty = bookRepository.count() == 0;
         } catch (RuntimeException e) {
-            e.printStackTrace();
+            log.error("Error while accessing book repository", e);
             return STATUS_DOWN;
         }
         if (storageEmpty) {
