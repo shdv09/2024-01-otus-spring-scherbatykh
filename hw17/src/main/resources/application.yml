@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:maindb
+  h2:
+    console.enabled: true
+    console:
+      path: /h2-console
+      settings:
+        web-allow-others: true
+  sql:
+    init:
+      data-locations: classpath:data.sql
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: false
+    show-sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health, metrics, logfile"
+  endpoint:
+    health:
+      show-details: always
+    logfile:
+      enabled:
+        true
+  health:
+    defaults:
+      enabled: true
+
+logging:
+  file:
+    name: "app.log"
