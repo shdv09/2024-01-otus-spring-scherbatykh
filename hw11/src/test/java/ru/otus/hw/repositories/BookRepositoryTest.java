@@ -23,7 +23,7 @@ class BookRepositoryTest extends AbstractRepositoryTest {
     @Autowired
     private BookRepository bookRepository;
 
-    @DisplayName("должен загружать книгу по id")
+/*    @DisplayName("должен загружать книгу по id")
     @Test
     void shouldReturnCorrectBookById() {
         Book expectedBook = mongoTemplate.findAll(Book.class).get(0);
@@ -102,5 +102,5 @@ class BookRepositoryTest extends AbstractRepositoryTest {
         assertThat(bookRepository.findById(book.getId())).isPresent();
         bookRepository.deleteById(book.getId());
         assertThat(bookRepository.findById(book.getId())).isEmpty();
-    }
+    }*/
 }

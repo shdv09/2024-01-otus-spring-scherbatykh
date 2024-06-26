@@ -3,16 +3,13 @@ package ru.otus.hw.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.otus.hw.dto.response.CommentDto;
 import ru.otus.hw.dto.mappers.CommentMapper;
-import ru.otus.hw.exceptions.NotFoundException;
-import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Comment;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.CommentRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -25,27 +22,28 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public CommentDto create(String bookId, String commentText) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new NotFoundException("Book with id = %d not found".formatted(bookId)));
-        Comment comment = new Comment();
-        comment.setText(commentText);
-        comment.setBook(book);
-        return commentMapper.toDto(commentRepository.save(comment));
+    public Mono<CommentDto> create(String bookId, String commentText) {
+        return bookRepository.findById(bookId)
+                .map(b -> {
+                    Comment comment = new Comment();
+                    comment.setText(commentText);
+                    comment.setBook(b);
+                    return comment;
+                })
+                .flatMap(commentRepository::save)
+                .map(commentMapper::toDto);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public CommentDto findById(String id) {
+    public Mono<CommentDto> findById(String id) {
         return commentRepository.findById(id)
-                .map(commentMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Comment with id = %d not found".formatted(id)));
+                .map(commentMapper::toDto);
     }
 
     @Override
-    public List<CommentDto> findByBookId(String bookId) {
-        return commentRepository.findByBookId(bookId).stream()
-                .map(commentMapper::toDto)
-                .collect(Collectors.toList());
+    public Flux<CommentDto> findByBookId(String bookId) {
+        return commentRepository.findByBookId(bookId)
+                .map(commentMapper::toDto);
     }
 }

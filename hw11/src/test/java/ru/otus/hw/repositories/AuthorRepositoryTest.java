@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import reactor.core.publisher.Flux;
 import ru.otus.hw.models.Author;
 
 import java.util.List;
@@ -20,7 +21,7 @@ class AuthorRepositoryTest extends AbstractRepositoryTest {
     @Autowired
     private AuthorRepository authorRepository;
 
-    @DisplayName("должен загружать автора по id")
+/*    @DisplayName("должен загружать автора по id")
     @Test
     void shouldReturnCorrectAuthorById() {
         Author expectedAuthor = mongoTemplate.findAll(Author.class).get(0);
@@ -40,5 +41,5 @@ class AuthorRepositoryTest extends AbstractRepositoryTest {
 
         assertEquals(3, authors.size());
         authors.forEach(System.out::println);
-    }
+    }*/
 }

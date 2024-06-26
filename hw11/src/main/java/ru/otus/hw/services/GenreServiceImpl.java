@@ -3,12 +3,11 @@ package ru.otus.hw.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.otus.hw.dto.response.GenreDto;
 import ru.otus.hw.dto.mappers.GenreMapper;
-import ru.otus.hw.exceptions.NotFoundException;
 import ru.otus.hw.repositories.GenreRepository;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -19,16 +18,14 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<GenreDto> findAll() {
-        return genreRepository.findAll().stream()
-                .map(genreMapper::toDto)
-                .toList();
+    public Flux<GenreDto> findAll() {
+        return genreRepository.findAll()
+                .map(genreMapper::toDto);
     }
 
     @Override
-    public GenreDto findById(String genreId) {
+    public Mono<GenreDto> findById(String genreId) {
         return genreRepository.findById(genreId)
-                .map(genreMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Genre with id = %s not found".formatted(genreId)));
+                .map(genreMapper::toDto);
     }
 }

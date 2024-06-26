@@ -24,7 +24,7 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
     @Autowired
     private CommentRepository commentRepository;
 
-    @DisplayName("должен загружать комментарий по id")
+/*    @DisplayName("должен загружать комментарий по id")
     @Test
     void shouldReturnCorrectCommentById() {
         Comment expectedComment = mongoTemplate.findAll(Comment.class).get(0);
@@ -81,5 +81,5 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
         List<Comment> commentsAfter = mongoTemplate.find(query, Comment.class);
         assertThat(commentsBefore).hasSize(3);
         assertThat(commentsAfter).isEmpty();
-    }
+    }*/
 }

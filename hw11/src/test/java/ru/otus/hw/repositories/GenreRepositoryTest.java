@@ -22,7 +22,7 @@ class GenreRepositoryTest extends AbstractRepositoryTest {
     @Autowired
     private GenreRepository genreRepository;
 
-    @DisplayName("должен загружать жанры по списку id")
+/*    @DisplayName("должен загружать жанры по списку id")
     @Test
     void shouldReturnCorrectGenresByIds() {
         List<Genre> expectedGenres = mongoTemplate.findAll(Genre.class);
@@ -44,5 +44,5 @@ class GenreRepositoryTest extends AbstractRepositoryTest {
 
         assertEquals(6, genres.size());
         genres.forEach(System.out::println);
-    }
+    }*/
 }

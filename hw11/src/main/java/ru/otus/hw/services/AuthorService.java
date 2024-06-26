@@ -1,11 +1,11 @@
 package ru.otus.hw.services;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.otus.hw.dto.response.AuthorDto;
 
-import java.util.List;
-
 public interface AuthorService {
-    List<AuthorDto> findAll();
+    Flux<AuthorDto> findAll();
 
-    AuthorDto findById(String authorId);
+    Mono<AuthorDto> findById(String authorId);
 }
