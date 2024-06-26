@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import reactor.core.publisher.Flux;
 import ru.otus.hw.models.Genre;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("Репозиторий на основе SpringDataMongoDb для работы с жанрами ")
+@DisplayName("Репозиторий на основе ReactiveMongoRepository для работы с жанрами ")
 class GenreRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
@@ -22,7 +23,7 @@ class GenreRepositoryTest extends AbstractRepositoryTest {
     @Autowired
     private GenreRepository genreRepository;
 
-/*    @DisplayName("должен загружать жанры по списку id")
+    @DisplayName("должен загружать жанры по списку id")
     @Test
     void shouldReturnCorrectGenresByIds() {
         List<Genre> expectedGenres = mongoTemplate.findAll(Genre.class);
@@ -30,19 +31,22 @@ class GenreRepositoryTest extends AbstractRepositoryTest {
                 .map(Genre::getId)
                 .collect(Collectors.toSet());
 
-        List<Genre> actualGenres = genreRepository.findAllById(genreIds);
+        Flux<Genre> genresFlux = genreRepository.findAllById(genreIds);
 
+        List<Genre> actualGenres = genresFlux.toStream().toList();
         assertThat(actualGenres)
                 .usingRecursiveComparison()
+                .ignoringCollectionOrder()
                 .isEqualTo(expectedGenres);
     }
 
     @DisplayName("должен загружать список всех жанров")
     @Test
     void shouldReturnCorrectGenresList() {
-        List<Genre> genres = genreRepository.findAll();
+        Flux<Genre> genresFlux = genreRepository.findAll();
 
-        assertEquals(6, genres.size());
-        genres.forEach(System.out::println);
-    }*/
+        List<Genre> actualGenres = genresFlux.toStream().toList();
+        assertEquals(6, actualGenres.size());
+        actualGenres.forEach(System.out::println);
+    }
 }

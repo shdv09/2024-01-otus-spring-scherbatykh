@@ -12,6 +12,7 @@ de:
         version: 4.0.2
 
 mongock:
+  enabled: true
   #runner-type: "ApplicationRunner"
   runner-type: "InitializingBean"
   change-logs-scan-package:

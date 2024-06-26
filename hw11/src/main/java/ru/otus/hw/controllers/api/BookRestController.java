@@ -59,7 +59,9 @@ public class BookRestController {
     }
 
     @PostMapping("/book/{id}/comment")
-    public Mono<CommentDto> addComment(@PathVariable(name = "id") String bookId, @RequestBody @Valid CommentCreateDto comment) {
+    public Mono<CommentDto> addComment(
+            @PathVariable(name = "id") String bookId,
+            @RequestBody @Valid CommentCreateDto comment) {
         return commentService.create(bookId, comment.getText());
     }
 }

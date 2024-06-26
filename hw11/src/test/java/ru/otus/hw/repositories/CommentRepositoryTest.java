@@ -7,6 +7,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.annotation.DirtiesContext;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Comment;
 
@@ -15,7 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Репозиторий на основе SpringDataMongoDb для работы с комментариями ")
+@DisplayName("Репозиторий на основе ReactiveMongoRepository для работы с комментариями ")
 class CommentRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
@@ -24,18 +27,21 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
     @Autowired
     private CommentRepository commentRepository;
 
-/*    @DisplayName("должен загружать комментарий по id")
+    @DisplayName("должен загружать комментарий по id")
     @Test
     void shouldReturnCorrectCommentById() {
         Comment expectedComment = mongoTemplate.findAll(Comment.class).get(0);
 
-        var actualComment = commentRepository.findById(expectedComment.getId());
+        Mono<Comment> commentMono = commentRepository.findById(expectedComment.getId());
 
-        assertThat(actualComment).isPresent()
-                .get()
-                .usingRecursiveComparison()
-                .withComparatorForType(Comparator.comparing(Book::getId), Book.class)
-                .isEqualTo(expectedComment);
+        StepVerifier
+                .create(commentMono)
+                .assertNext(comment -> assertThat(comment)
+                        .usingRecursiveComparison()
+                        .withComparatorForType(Comparator.comparing(Book::getId), Book.class)
+                        .isEqualTo(expectedComment))
+                .expectComplete()
+                .verify();
     }
 
     @DisplayName("должен загружать список комментариев для книги")
@@ -46,9 +52,11 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
         query.addCriteria(Criteria.where("book").is(book));
         List<Comment> expectedComments = mongoTemplate.find(query, Comment.class);
 
-        List<Comment> actualComments = commentRepository.findByBookId(book.getId());
+        Flux<Comment> commentFlux = commentRepository.findByBookId(book.getId());
 
+        List<Comment> actualComments = commentFlux.toStream().toList();
         assertThat(actualComments).usingRecursiveComparison()
+                .ignoringCollectionOrder()
                 .withComparatorForType(Comparator.comparing(Book::getId), Book.class)
                 .isEqualTo(expectedComments);
     }
@@ -60,11 +68,15 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
         Comment comment = mongoTemplate.findAll(Comment.class).get(0);
         comment.setText("updated text");
 
-        var actualComment = commentRepository.save(comment);
+        Mono<Comment> commentMono = commentRepository.save(comment);
 
-        assertThat(actualComment)
-                .usingRecursiveComparison()
-                .isEqualTo(comment);
+        StepVerifier
+                .create(commentMono)
+                .assertNext(actualComment -> assertThat(actualComment)
+                        .usingRecursiveComparison()
+                        .isEqualTo(comment))
+                .expectComplete()
+                .verify();
     }
 
     @DisplayName("должен удалять комментарии для книги")
@@ -76,10 +88,13 @@ class CommentRepositoryTest extends AbstractRepositoryTest {
         query.addCriteria(Criteria.where("book").is(book));
         List<Comment> commentsBefore = mongoTemplate.find(query, Comment.class);
 
-        commentRepository.deleteByBookId(book.getId());
+        Mono<Void> voidMono = commentRepository.deleteByBookId(book.getId());
+        StepVerifier.create(voidMono)
+                .expectComplete()
+                .verify();
 
         List<Comment> commentsAfter = mongoTemplate.find(query, Comment.class);
         assertThat(commentsBefore).hasSize(3);
         assertThat(commentsAfter).isEmpty();
-    }*/
+    }
 }

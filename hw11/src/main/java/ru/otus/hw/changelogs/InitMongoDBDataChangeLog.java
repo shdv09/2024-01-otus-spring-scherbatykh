@@ -33,7 +33,7 @@ public class InitMongoDBDataChangeLog {
     public void initAuthors(AuthorRepository repository) {
         for (int i = 0; i < 3; i++) {
             Author author = new Author(null, "author" + i);
-            repository.save(author);
+            repository.save(author).subscribe();
             authors.add(author);
         }
     }
@@ -42,7 +42,7 @@ public class InitMongoDBDataChangeLog {
     public void initGenres(GenreRepository repository) {
         for (int i = 0; i < 6; i++) {
             Genre genre = new Genre(null, "genre" + i);
-            repository.save(genre);
+            repository.save(genre).subscribe();
             genres.add(genre);
         }
     }
@@ -51,7 +51,7 @@ public class InitMongoDBDataChangeLog {
     public void initBooks(BookRepository repository) {
         for (int i = 0; i < 3; i++) {
             Book book = new Book(null, "book" + i, authors.get(i), genres.subList(i, i + 2));
-            repository.save(book);
+            repository.save(book).subscribe();
             books.add(book);
         }
     }
@@ -60,7 +60,7 @@ public class InitMongoDBDataChangeLog {
     public void initComments(CommentRepository repository) {
         for (int i = 0; i < 3; i++) {
             Comment comment = new Comment(null, "comment" + i, books.get(0));
-            repository.save(comment);
+            repository.save(comment).subscribe();
         }
     }
 }
