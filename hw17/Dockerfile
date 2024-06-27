@@ -1,5 +1,4 @@
 FROM maven:3.9.7-sapmachine-17 AS builder
-ENV TZ="Europe/Moscow"
 WORKDIR /build
 COPY . .
 RUN mvn --no-transfer-progress -Dmaven.test.skip=true clean package
