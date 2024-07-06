@@ -2,24 +2,33 @@ package ru.otus.hw.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import ru.otus.hw.dto.response.ErrorDto;
 
 @Slf4j
 @RestControllerAdvice
 public class ControllerExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
-    ResponseEntity<ErrorDto> notFoundException(NotFoundException e) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorDto notFoundException(NotFoundException e) {
         log.error("Object not found: {}", e.getMessage());
-        return new ResponseEntity<>(new ErrorDto(e.toString()), HttpStatus.NOT_FOUND);
+        return new ErrorDto(e.toString());
+    }
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorDto validationException(WebExchangeBindException e) {
+        log.error("Object not found: {}", e.getMessage());
+        return new ErrorDto(e.toString());
     }
 
     @ExceptionHandler(Exception.class)
-    ResponseEntity<ErrorDto> commonHandler(Exception e) {
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    ErrorDto commonHandler(Exception e) {
         log.error("Server error: {}", e.getMessage(), e);
-        return new ResponseEntity<>(new ErrorDto(e.toString()), HttpStatus.INTERNAL_SERVER_ERROR);
-
+        return new ErrorDto(e.toString());
     }
 }
