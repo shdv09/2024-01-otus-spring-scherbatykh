@@ -13,6 +13,7 @@ import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.services.BookService;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -33,7 +34,7 @@ public class CircuitBreakerTest {
 
     @Test
     void findBookCircuitBreakerTest() {
-        given(bookRepository.findById(anyLong())).willThrow(new NotFoundException("book not found"));
+        given(bookRepository.findById(anyLong())).willReturn(Optional.empty());
         given(commentRepository.findByBookId(anyLong())).willReturn(List.of(new Comment(4L, "comment text", new Book())));
 
         for (int i = 0; i < 5; i++) {
